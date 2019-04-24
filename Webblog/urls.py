@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from blog.views import source, register, login
+from userinfo.views import source, register, login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
