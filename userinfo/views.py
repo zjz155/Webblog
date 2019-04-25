@@ -1,4 +1,5 @@
 import base64
+import datetime
 import hmac
 import json
 
@@ -10,6 +11,8 @@ from django.shortcuts import render
 # Create your views here.
 import Webblog.settings
 from userinfo.models import UserInfo
+
+timedelta = datetime.timedelta(seconds=60).total_seconds()
 
 def register(request):
     username = request.POST.get("username")
@@ -39,7 +42,7 @@ def register(request):
     # 数据校验不通过，返回
     return HttpResponse(json_str)
 
-
+# 登录
 def login(request):
     username = request.POST.get("username")
     password = request.POST.get("password")
@@ -50,12 +53,26 @@ def login(request):
 
 
     if user and pwd:
-        return jwt_views(username)
+        user[0].save()
+        last_login = user[0].last_login.timestamp()
+
+        token = create_token(username, last_login)
+        dic = {
+            "action": "login",
+            "username": username,
+            "success": True,
+            "token": token,
+        }
+        json_str = json.dumps(dic)
+
+        return HttpResponse(json_str)
 
     return HttpResponse("用户名或密码不正确")
 
+# 计算token
+def create_token(username, last_login):
 
-def jwt_views(username):
+    exp = last_login + timedelta
     header = {
         "alg": "sha256",
         "typ": "JWT"
@@ -63,9 +80,12 @@ def jwt_views(username):
 
     payload = {
         "sub": "1234567890",
+        "exp": exp,
+        "last_login": last_login,
         "name": username,
         "admin": False,
     }
+
 
     # 将header、payload字典对象变为字符串
     header_json_str = json.dumps(header)
@@ -90,44 +110,90 @@ def jwt_views(username):
     # 把 Header、Payload、Signature 三个部分拼成一个字符串，每个部分之间用"点"（.）分隔
     token = s + "." + signature
 
-    return HttpResponse(token)
+    return token
 
+# 判断token是否过期
+def is_expire(exp):
+    now = datetime.datetime.now().timestamp()
+    if (exp - now) < 0.0:
+        return True
+    else:
+        return False
 
-def check_jwt(func):
+# 计算新的token
+def refresh_token(username, last_login):
+    online_time = datetime.datetime.now().timestamp() - last_login
+    print(online_time)
+    print("old_last_login:", datetime.datetime.fromtimestamp(last_login))
+    if online_time > timedelta / 2:
+        user = UserInfo.objects.filter(username=username)
+        last_login_ = user[0].last_login.timestamp()
+        # 如果没有用新的token,返回None.
+        if last_login != last_login_:
+            return None
+
+        user[0].save()
+        last_login = user[0].last_login.timestamp()
+        print("new_last_login:", datetime.datetime.fromtimestamp(last_login))
+        return create_token(username, last_login)
+
+    return None
+
+# 验证token签名
+def check_token(func):
     def wrapper(request, *args, **kwargs):
         token = request.META.get("HTTP_AUTHORIZATION").split(" ")[1]
         jwt = token.split(".")
         header = jwt[0]
         payload = jwt[1]
         signature = jwt[2]
+
         # 解码后得到bytes格式
         header_ = base64.urlsafe_b64decode(header)
         # 解码成python字串符
-        header_ = header_ .decode()
+        header_ = header_.decode()
         # print(header_)
+        payload_ = base64.urlsafe_b64decode(payload)
+        payload_ = payload_.decode()
 
+        payload_dict = json.loads(payload_)
         header_dict = json.loads(header_)
         alg = header_dict["alg"]
+        exp = payload_dict["exp"]
+        username = payload_dict["name"]
+        last_login = payload_dict["last_login"]
+
         s = header + "." + payload
         key = Webblog.settings.SECRET_KEY.encode()
-
         signature_ = hmac.new(key, s.encode(), alg).hexdigest()
 
         # 验证签名
         flag = hmac.compare_digest(signature_, signature)
-        # flag = 0
-        if flag:
-            # print("signature：", signature, "header:", type(header_dict), "flag:", flag)
-            return func(request, *args, **kwargs)
 
-        else:
-            return HttpResponse("你错了。。。")
+        # 如果 验证签名失败或过期要求重新登入　
+        if not flag or is_expire(exp) :
+            dic = {
+                "action": "check token",
+                "success": False,
+                "message": "请重新登寻...",
+            }
+            json_str = json.dumps(dic)
+            return HttpResponse(json_str)
+
+        return func(request, username, last_login)
 
     return wrapper
 
     # return HttpResponse("ok")
 
 
-@check_jwt
-def source(request):
-    return HttpResponse("你找到我了。。。。")
+@check_token
+def source(request,  *args, **kwargs):
+    new_token = refresh_token(*args, **kwargs)
+    dic = {
+        "data": "你要的数据",
+        "new_token": new_token,
+    }
+    json_str = json.dumps(dic)
+
+    return HttpResponse(json_str)
