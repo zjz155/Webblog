@@ -89,6 +89,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.ideal
+.ideal/
+*.xml
 
 # Spyder project settings
 .spyderproject
