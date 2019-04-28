@@ -86,7 +86,7 @@ def login(request):
 def userinfo(request,  *args, **kwargs):
     new_token = refresh_token(*args, **kwargs)
     payload = args[0]
-    logger.debug(*args,)
+    print()
     user = UserInfo.objects.filter(username=payload["name"])[0]
     dic = {
         "data": {"name": user.username, "sex": user.sex},

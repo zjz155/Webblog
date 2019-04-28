@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from blog.views import write_blog_entry
+from blog.views import write_blog_entry, read_blog_entry, read
 from userinfo.views import userinfo, register, login
 
 urlpatterns = [
@@ -24,5 +24,7 @@ urlpatterns = [
     path("register/", register),
     path("login/", login),
     path("source/", userinfo),
-    path("write_blog_entry/", write_blog_entry)
+    path("write_blog_entry/", write_blog_entry),
+    path("read_blog_entry/", read_blog_entry),
+    path("read_blog/", read)
 ]
