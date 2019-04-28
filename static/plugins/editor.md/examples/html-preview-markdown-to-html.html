@@ -30,13 +30,13 @@
                 <textarea id="append-test" style="display:none;">
 
 ###科学公式 TeX(KaTeX)
-                    
+
 $$E=mc^2$$
 
 行内的公式$$E=mc^2$$行内的公式，行内的$$E=mc^2$$公式。
 
 $$\(\sqrt{3x-1}+(1+x)^2\)$$
-                    
+
 $$\sin(\alpha)^{\theta}=\sum_{i=0}^{n}(x^i + \cos(f))$$
 
 $$X^2 > Y$$
@@ -79,7 +79,7 @@ alert("script");
 
 &lt;script type="text/javscript"&gt;
 alert("script");
-&lt;/script&gt;</textarea>          
+&lt;/script&gt;</textarea>
             </div>
         </div>
         <!-- <script src="js/zepto.min.js"></script>
@@ -102,6 +102,7 @@ alert("script");
                 var testEditormdView, testEditormdView2;
                 
                 $.get("test.md", function(markdown) {
+                    console.log(markdown)
                     
 				    testEditormdView = editormd.markdownToHTML("test-editormd-view", {
                         markdown        : markdown ,//+ "\r\n" + $("#append-test").text(),

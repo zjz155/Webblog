@@ -1,24 +1,29 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="../static/plugins/editor.md/css/editormd.min.css">
-    <script src="../static/js/jquery.min.js"></script>
-    <script src="../static/plugins/editor.md/editormd.min.js"></script>
+    <link rel="stylesheet" href="/static/plugins/editor.md/css/editormd.min.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/plugins/editor.md/editormd.min.js"></script>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-
-<div id="editormd">
-    <textarea style="display:none;">### Hello Editor.md !</textarea>
-</div>
+<form method="post" action="/write_blog_entry/" >
+    <div id="editormd">
+        <textarea name="content" style="display:none;">### Hello Editor.md !</textarea>
+      </div>
+    <input type="submit" name="submit" value="提交表单 Submit"/>
+</form>
 
 
 
 <script type="text/javascript">
     $(function() {
         var editor = editormd("editormd", {
-            path : "../static/plugins/editor.md/lib/" // Autoload modules mode, codemirror, marked... dependents libs path
+            width  : "90%",
+            height : 640,
+            path : "/static/plugins/editor.md/lib/" // Autoload modules mode, codemirror, marked... dependents libs path
         });
 
         /*
