@@ -92,6 +92,7 @@ venv.bak/
 .ideal
 .ideal/
 *.xml
+*.iml
 
 # Spyder project settings
 .spyderproject
