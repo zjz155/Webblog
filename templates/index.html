@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+"index"
+<script src="/static/js/jquery.min.js"></script>
+<script type="text/javascript">
+ $(function() {
+                var testEditormdView, testEditormdView2;
+
+                $.get("/index/", function(data) {
+
+                        console.log(data)
+                }, "json");
+            });
+</script>
+
+</body>
+</html>

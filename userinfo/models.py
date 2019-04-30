@@ -9,5 +9,11 @@ class UserInfo(models.Model):
     is_superuser = models.BooleanField(default=0)
     date_join = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
+    email = models.EmailField(null=True)
 
+    def __str__(self):
+        return self.username
 
+    class Meta:
+        verbose_name = "用户"
+        verbose_name_plural = verbose_name
