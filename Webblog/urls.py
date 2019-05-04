@@ -18,7 +18,7 @@ from django.urls import path, re_path, include
 
 import blog
 from blog.views import write_blog_entry, read_blog_entry, read, GrantBlogView, CompileBlogEntry, TestView, index, \
-    indexview
+    indexview, Profile
 from userinfo.views import RegisterView, LoginView, UserInfoView
 
 urlpatterns = [
@@ -30,12 +30,14 @@ urlpatterns = [
 
 urlpatterns += [
     path("", indexview),
-    path("index/", index),
+    path("index/<int:page>/", index),
     path("login/", LoginView.as_view()),
     path("register/", RegisterView.as_view()),
     path("user_info/", UserInfoView.as_view()),
     path("grant_blog/", GrantBlogView.as_view() ),
     path("compile_blog/", CompileBlogEntry.as_view()),
+    path("profile/", Profile),
     re_path(r'^test/(?P<username>\w+)/$', TestView.as_view()),
     re_path(r"(?P<username>\w+)/", include("blog.urls"))
+
 ]

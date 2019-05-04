@@ -54,6 +54,11 @@ class Entry(models.Model):
     def get_absolute_url(self):
         return "%s/article/details/%d"%(self.blog.user.username, self.id)
 
+class Tag(models.Model):
+    category = models.CharField(max_length=30)
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
+    created = models.DateField(auto_now_add=True)
+
 
 class Test_Entry(models.Model):
     body_text = models.TextField()

@@ -80,18 +80,21 @@ def read_blog_entry(request, username, article_id, *agrs, **kwargs):
     content = entry.body_text
     return  HttpResponse(content)
 
+def Profile(request):
+    return render(request, "profile.html")
+
 def indexview(request):
     return render(request, "index.html")
 
-def index(request,*args, **kwargs):
+def index(request, page=1, *args, **kwargs):
     entry_list = Entry.objects.all().order_by("-pub_date")
     paginator = Paginator(entry_list, 5)
     count = paginator.count
     page_num = paginator.num_pages
 
     # page = request.GET.get('page')
-    page = 1
-    entries_page = paginator.get_page(1)
+    # page = 1
+    entries_page = paginator.get_page(page)
     has_next = entries_page.has_next()
     has_previous = entries_page.has_previous()
 

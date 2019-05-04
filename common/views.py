@@ -91,7 +91,10 @@ def refresh_token(payload):
 # 验证token签名
 def check_token(func):
     def wrapper(request, *args, **kwargs):
-        token = request.META.get("HTTP_AUTHORIZATION").split(" ")[1]
+        token = request.META.get("HTTP_AUTHORIZATION")
+        if not token:
+            return HttpResponse("需要认证")
+        token = token.split(" ")[1]
         jwt = token.split(".")
         header_jwt = jwt[0]
         payload_jwt= jwt[1]
