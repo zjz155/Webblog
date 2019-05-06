@@ -3,7 +3,7 @@ import datetime
 import hmac
 import json
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
@@ -11,8 +11,8 @@ import Webblog
 from userinfo.models import UserInfo
 
 # 定义JWT的header和payload
-def dinfine_header_payload(username, timedelta, last_login, admin=False, alg="sha256"):
-    exp = last_login + timedelta
+def dinfine_header_payload(username, timedelta, iat, admin=False, alg="sha256"):
+    exp = iat + timedelta
     header = {
         "alg": alg,
         "typ": "JWT"
@@ -21,7 +21,7 @@ def dinfine_header_payload(username, timedelta, last_login, admin=False, alg="sh
     payload = {
         "sub": "Webblog",
         "exp": exp,
-        "last_login": last_login,
+        "iat": iat,
         "name": username,
         "admin": admin,
     }
@@ -66,24 +66,24 @@ def is_expire(exp):
 
 # 计算新的token
 def refresh_token(payload):
-    last_login = payload["last_login"]
+    iat = payload["iat"]
     username = payload["name"]
-    timedelta = payload["exp"] - last_login
+    timedelta = payload["exp"] - iat
 
-    online_time = datetime.datetime.now().timestamp() - last_login
+    online_time = datetime.datetime.now().timestamp() - iat
     print(online_time)
-    print("old_last_login:", datetime.datetime.fromtimestamp(last_login))
+    print("old_iat:", datetime.datetime.fromtimestamp(iat))
     if online_time > timedelta / 2:
         user = UserInfo.objects.filter(username=username)
-        last_login_ = user[0].last_login.timestamp()
+        iat_ = user[0].iat.timestamp()
         # 如果没有用新的token,返回None.
-        if last_login != last_login_:
+        if iat != iat_:
             return None
 
         user[0].save()
-        last_login = user[0].last_login.timestamp()
-        print("new_last_login:", datetime.datetime.fromtimestamp(last_login))
-        header_payload = dinfine_header_payload(username, timedelta, last_login)
+        iat = user[0].iat.timestamp()
+        print("new_iat:", datetime.datetime.fromtimestamp(iat))
+        header_payload = dinfine_header_payload(username, timedelta, iat)
         return create_token(**header_payload)
 
     return None
@@ -96,9 +96,17 @@ def check_token(func):
             return HttpResponse("需要认证")
         token = token.split(" ")[1]
         jwt = token.split(".")
-        header_jwt = jwt[0]
-        payload_jwt= jwt[1]
-        signature_jwt = jwt[2]
+        try:
+            header_jwt = jwt[0]
+            payload_jwt= jwt[1]
+            signature_jwt = jwt[2]
+        except IndexError:
+            dic = {
+                "action": "check token",
+                "success": False,
+                "message": "请重新登寻...",
+            }
+            return JsonResponse(dic)
 
         # 解码后得到bytes格式
         header_ = base64.urlsafe_b64decode(header_jwt)

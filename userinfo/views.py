@@ -3,8 +3,8 @@ import json
 import logging
 
 from django.contrib.auth.hashers import make_password, check_password
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.utils.decorators import method_decorator
@@ -26,7 +26,7 @@ class RegisterView(View):
     def post(self, request, *args, **kwargs):
         username = request.POST.get("username")
         password = request.POST.get("password")
-
+        print("username:", username, "password:", password)
         # 数据校验
         user = UserInfo.objects.filter(username=username)
         if user:
@@ -47,7 +47,8 @@ class RegisterView(View):
                 "success": True,
                 "message": "注册成功",
             }
-            return HttpResponse("OK")
+            response = JsonResponse(dic)
+            return response
 
         dic = {
             "action": "register",
@@ -94,7 +95,6 @@ class LoginView(View):
 
         return HttpResponse("用户名或密码不正确")
 
-
 class UserInfoView(View):
     @method_decorator(check_token)
     def get(self, request, *args, **kwargs):
@@ -110,3 +110,19 @@ class UserInfoView(View):
         return HttpResponse(json_str)
 
 
+class IsVailTokenView(View):
+    @method_decorator(check_token)
+    def post(self, request, *args, **kwargs):
+        payload = args[0]
+        username =payload["name"]
+        dic = {
+            "action": "login",
+            "username": username,
+            "success": True,
+            "token": "",
+            "message": "登录成功",
+        }
+
+        return JsonResponse(dic)
+        # json_str = json.dumps(dic)
+        # return HttpResponse(json_str)

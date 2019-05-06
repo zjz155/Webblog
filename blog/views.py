@@ -1,7 +1,8 @@
 import json
 
+from django.core.cache import caches
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -42,11 +43,6 @@ class CompileBlogEntry(View):
 
         return HttpResponse("保存成功")
 
-class TestView(View):
-    def get(self, request, *args, **kwargs):
-        print(args, kwargs)
-        return  HttpResponse("haha")
-
 @check_token
 def write_blog_entry(request, *args, **kwargs):
     if request.method == "GET":
@@ -83,49 +79,53 @@ def read_blog_entry(request, username, article_id, *agrs, **kwargs):
 def Profile(request):
     return render(request, "profile.html")
 
-def indexview(request):
-    return render(request, "index.html")
 
-def index(request, page=1, *args, **kwargs):
-    entry_list = Entry.objects.all().order_by("-pub_date")
-    paginator = Paginator(entry_list, 5)
-    count = paginator.count
-    page_num = paginator.num_pages
 
-    # page = request.GET.get('page')
-    # page = 1
-    entries_page = paginator.get_page(page)
-    has_next = entries_page.has_next()
-    has_previous = entries_page.has_previous()
+class IndexView(View):
+    def get(self, request, data="html", *args, **kwargs):
+        if data=="html":
+            return render(request, "index.html")
 
-    entries_object_list = entries_page.object_list
+        entry_list = Entry.objects.all().order_by("-pub_date")
+        paginator = Paginator(entry_list, 5)
+        count = paginator.count
+        page_num = paginator.num_pages
 
-    entries = [{"headline": obj.headline, "abstract": obj.abstract, "pub_date": obj.pub_date.strftime("%Y-%m-%d"),
-                "blog": obj.blog.name, "link":obj.get_absolute_url()} for obj in entries_object_list]
+        # page = request.GET.get('page')
+        # page = 1
 
-    dic = {
-        "page":{
-            "has_next": has_next,
-            "has_previous": has_previous,
-            "page_num": page_num,
-        },
+        entries_page = paginator.get_page(data)
+        has_next = entries_page.has_next()
+        has_previous = entries_page.has_previous()
 
-        "entries":entries
+        entries_object_list = entries_page.object_list
 
-    }
-    json_str = json.dumps(dic)
-    print(entries)
-    response = HttpResponse(json_str)
+        entries = [{"headline": obj.headline, "abstract": obj.abstract, "pub_date": obj.pub_date.strftime("%Y-%m-%d"),
+                    "blog": obj.blog.name, "link": obj.get_absolute_url()} for obj in entries_object_list]
 
-    return response
+        dic = {
+            "page": {
+                "has_next": has_next,
+                "has_previous": has_previous,
+                "page_num": page_num,
+            },
 
-@check_token
-def turn_on_blog(requets, *args, **kwargs):
-    playload = args[0]
-    username = playload["name"]
+            "entries": entries
 
-    blog = Blog.objects.filter(username=username)
-    if blog:
-        pass
-    blog_name = username +"`s blog"
-    Blog.objects.create(name=blog_name)
+        }
+        json_str = json.dumps(dic)
+        print(entries)
+        response = HttpResponse(json_str)
+
+        return response
+
+class TestView(View):
+    def get(self, request, *args, **kwargs):
+        cache = caches["default"]
+        cache.set("mycache", "中国")
+        print("cache.get:" , cache.get("testcache"))
+        print(args, kwargs)
+        return  HttpResponse("haha")
+    def put(self, request, *args, **kwargs):
+
+        return JsonResponse({"method": "PUT"})

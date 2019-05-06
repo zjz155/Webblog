@@ -34,7 +34,7 @@
 
       <div class="form-group">
           <label for="inputPassword">密码:</label>
-        <input type="password" id="password" class="form-control" placeholder="Password" required>
+        <input type="password" id="password" class="form-control" placeholder="password" required>
 
       </div>
 
@@ -54,9 +54,15 @@
                 password = $("#password").val();
                 $.post("/login/", {"username": username, "password": password }, function(data,status){
 
-                    if (data.success === true)
-                        $(location).attr('href', '/')
+                    if (data.success === true){
+                        token = window.localStorage.getItem("token");
 
+                        if (token)
+                            window.localStorage.clear();
+
+                        window.localStorage.setItem("token", data.token);
+                        $(location).attr("href", "/index/html/")
+                    }
 
 		}, "json");
 	});

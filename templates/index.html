@@ -25,7 +25,7 @@
  <header>
       <!-- Fixed navbar -->
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">个人博客客</a>
+        <a class="navbar-brand" href="#">LIFE IS SHORT</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -41,17 +41,17 @@
               <a class="nav-link disabled" href="#">项目介绍</a>
             </li>
           </ul>
-          <form class="form-inline mt-2 mt-md-0">
+          <div class="form-inline mt-2 mt-md-0">
 
               <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success my-2 my-sm-0" >登录</button>&nbsp;&nbsp;
-              <button class="btn btn-outline-success my-2 my-sm-0" >注册</button>
-          </form>
+              <button class="btn btn-outline-success my-2 my-sm-0"  id="login">登录</button>&nbsp;&nbsp;
+              <button class="btn btn-outline-success my-2 my-sm-0" id="register">注册</button>
+          </div>
         </div>
       </nav>
  </header>
 
-<br />
+<br/>
  <br />
 
 <div class="container">
@@ -71,7 +71,7 @@
                 <span><small>|</small></span>
             </span>
             <sapn>
-                <span><small>置顶</small></span>  <span><small>编辑</small></span>   <span><small>删除</small></span>
+                <span><small>置顶</small></span>  <span> <small>编辑</small></span>   <span><small>删除</small></span>
             </sapn>
 
 
@@ -173,15 +173,66 @@
 <script src="/static/js/jquery.min.js"></script>
 <script type="text/javascript">
  $(function() {
-                var testEditormdView, testEditormdView2;
 
-                $.get("/index/1/", function(data) {
+     $.ajax({
+         url: "/is_login/",
+         type: "post",
+         dataType: "json",
+         headers:{
+             "Authorization": "Bearer" + " " +  window.localStorage.getItem("token")
+         },
 
-                    console.log(data.entries[0].blog);
-                    console.log(data.entries[0].link);
+         success: function (data, status) {
+             if (data.success) {
+                 $("#login").html("退出");
+                 $("#register").html(data.username)
+             }
+         },
+         error: function (XHR, textStatus, errorThrown) {
+             alert("响应状态=" + textStatus );
+         },
 
-                }, "json");
-            });
+     });
+
+     $("#login").click(function(){
+         if ($("#login").html() ==="退出"){
+            window.localStorage.clear();
+            $("#login").html("登录");
+             $("#register").html("注册");
+         }
+         else
+             $(window).attr("location", "/login/")
+
+     });
+
+      $("#register").click(function(){
+         if ($("#register").html() ==="注册"){
+              $(location).attr("href", "/register/")
+
+         }
+
+
+     });
+
+     $.get("/index/1/", function (data, status) {
+
+             headline = data.entries[0].headline;
+             abstract = data.entries[0].abstract;
+             pub_date = data.entries[0].pub_date;
+             blog = data.entries[0].blog;
+             link = data.entries[0].link;
+             console.log(data);
+             $("#headline").html(headline);
+             $("#abstract").html(abstract);
+
+
+     },"json");
+
+
+  });
+
+
+
 </script>
 
 </body>
