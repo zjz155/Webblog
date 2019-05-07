@@ -12,4 +12,5 @@ urlpatterns += [
     re_path(r"article/$", ListEntryView.as_view()),
     re_path(r"article/details/(?P<article_id>\d+)/$", DetialEntryView.as_view()),
     re_path(r"article/details/(?P<article_id>\d+)/data/$", read_blog_entry),
+
 ]

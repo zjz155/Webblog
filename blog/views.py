@@ -73,8 +73,12 @@ def read(request, usesrname, id, ):
 
 def read_blog_entry(request, username, article_id, *agrs, **kwargs):
     entry = get_object_or_404(Entry, id=article_id)
-    content = entry.body_text
-    return  HttpResponse(content)
+    headline ="##"  + entry.headline
+    content =  entry.body_text
+
+
+    # content = entry.body_text
+    return  JsonResponse({"content": content,"headline": headline})
 
 def Profile(request):
     return render(request, "profile.html")
@@ -82,8 +86,8 @@ def Profile(request):
 
 
 class IndexView(View):
-    def get(self, request, data="html", *args, **kwargs):
-        if data=="html":
+    def get(self, request, data= "html", *args, **kwargs):
+        if data == "html":
             return render(request, "index.html")
 
         entry_list = Entry.objects.all().order_by("-pub_date")
@@ -100,7 +104,7 @@ class IndexView(View):
 
         entries_object_list = entries_page.object_list
 
-        entries = [{"headline": obj.headline, "abstract": obj.abstract, "pub_date": obj.pub_date.strftime("%Y-%m-%d"),
+        entries = [{"headline": obj.headline, "abstract": obj.abstract, "pub_date": obj.pub_date.strftime("%Y-%m-%d %H:%M:%S"),
                     "blog": obj.blog.name, "link": obj.get_absolute_url()} for obj in entries_object_list]
 
         dic = {
