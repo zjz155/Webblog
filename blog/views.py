@@ -26,7 +26,7 @@ class GrantBlogView(View):
 
         return HttpResponse("成功开通博客")
 
-@method_decorator(check_token, name="dispatch")
+# @method_decorator(check_token, name="dispatch")
 class CompileBlogEntry(View):
     def get(self, request, *args, **kwargs):
         return render(request, "markdown.html")
