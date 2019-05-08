@@ -40,6 +40,9 @@
             <li class="nav-item">
               <a class="nav-link disabled" href="#" >项目介绍</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/compile_blog/" target="_blank">Markdown编辑器</a>
+            </li>
           </ul>
           <div class="form-inline mt-2 mt-md-0">
 
@@ -142,7 +145,7 @@
 
      });
 
-     $.get("/index/5/", function (data, status) {
+     $.get("/index/1/", function (data, status) {
          html = "";
          for (i=0; i< data.entries.length; i++){
             headline = data.entries[i].headline;

@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.core.cache import caches
 from django.core.paginator import Paginator
@@ -10,6 +11,8 @@ from django.views import View
 from blog.models import *
 from common.views import check_token, refresh_token
 from userinfo.models import UserInfo
+
+local_time_zone = (datetime.now() - datetime.utcnow()).seconds / 3600
 
 class GrantBlogView(View):
     @method_decorator(check_token)
@@ -73,7 +76,7 @@ def read(request, usesrname, id, ):
 
 def read_blog_entry(request, username, article_id, *agrs, **kwargs):
     entry = get_object_or_404(Entry, id=article_id)
-    headline ="##"  + entry.headline
+    headline = entry.headline
     content =  entry.body_text
 
 

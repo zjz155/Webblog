@@ -28,6 +28,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    path("",IndexView.as_view()),
     re_path(r"index/(?P<data>\w+)/$", IndexView.as_view()),
     # path("index/<int:page>/", index),
     path("login/", LoginView.as_view()),

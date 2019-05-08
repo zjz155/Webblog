@@ -16,20 +16,46 @@
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/plugins/editor.md/editormd.min.js"></script>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title id="title">markdown编辑器</title>
 </head>
 <body>
 <div class="container-fluid">
     <br/>
     <form method="post" action="/compile_blog/" >
          <div class="form-group">
-            <it type="text" class="form-control"  name="headline" id="headline" placeholder="请输入文章标题" style="width: 85%;display:inline" >
-            <input type="submit" name="sut" value="发表文章"/>
-            <input type="submit" name="submit" value="存为草稿" />
+            <input type="text" class="form-control"  name="headline" id="headline" placeholder="请输入文章标题" style="width: 65%;display:inline" >
+            <input type="button" class="btn" name="reported" value="发表文章"/>
+            <input type="button" class="btn" name="saving" value="存为草稿" />
             <img src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" alt="Cinque Terre" width="35px" height="35px"/>
         </div>
         <div id="editormd">
-            <textarea name="content" style="display: none">## Hello Editor.md !</textarea>
+            <textarea name="content" style="display: none">
+### 功能后续完善,这里只演示下markdown的功能 !
+* 多人博功能
+* 关注功能
+* 文章份分类
+
+```python
+    from pdfminer.pdfinterp import PDFResourceManager, process_pdf
+    from pdfminer.converter import TextConverter
+    from pdfminer.layout import LAParams
+    from io import StringIO
+    from io import open
+
+    def readPDF(pdfFile):
+        rsrcmgr = PDFResourceManager()
+        retstr = StringIO()
+        laparams = LAParams()
+        device = TextConverter(rsrcmgr, retstr, laparams=laparams)
+
+        process_pdf(rsrcmgr, device, pdfFile)
+        device.close()
+
+        content = retstr.getvalue()
+        retstr.close()
+        return content
+```
+        </textarea>
         </div>
 
     </form>
