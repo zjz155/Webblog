@@ -107,12 +107,11 @@
             $(function() {
                 $.ajax({
                      url: "/is_login/",
-                     type: "post",
+                     type: "get",
                      dataType: "json",
                      headers:{
                          "Authorization": "Bearer" + " " +  window.localStorage.getItem("token")
                      },
-
                      success: function (data, status) {
                          if (data.success) {
                              $("#login").html("退出");
@@ -122,9 +121,7 @@
                      error: function (XHR, textStatus, errorThrown) {
                          alert("响应状态=" + textStatus );
                      },
-
                  });
-
                  $("#login").click(function(){
                      if ($("#login").html() ==="退出"){
                         window.localStorage.clear();
@@ -133,19 +130,13 @@
                      }
                      else
                          $(window).attr("location", "/login/")
-
                  });
-
                 $("#register").click(function(){
                      if ($("#register").html() ==="注册"){
                           $(location).attr("href", "/register/")
-
                      }
-
                 });
-
                 var testEditormdView, testEditormdView2;
-
                 $.get("/{{ username }}/article/details/{{ article_id }}/data/", function(markdown) {
                     console.log(markdown);
                     headline = markdown["headline"];
@@ -165,17 +156,12 @@
                         flowChart       : true,  // 默认不解析
                         sequenceDiagram : true,  // 默认不解析
                     });
-
 				    $("#title").html(headline)
-
                     //console.log("返回一个 jQuery 实例 =>", testEditormdView);
-
                     // 获取Markdown源码
                     //console.log(testEditormdView.getMarkdown());
-
                     //alert(testEditormdView.getMarkdown());
                 });
-
                 testEditormdView2 = editormd.markdownToHTML("test-editormd-view2", {
                     htmlDecode      : "style,script,iframe",  // you can filter tags decode
                     emoji           : true,
@@ -186,4 +172,4 @@
                 });
             });
         </script>
-    </body>
+</body>

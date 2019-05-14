@@ -41,7 +41,7 @@
               <a class="nav-link disabled" href="#" >项目介绍</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/compile_blog/" target="_blank">Markdown编辑器</a>
+              <a class="nav-link" href="#" id="markdown">Markdown编辑器</a>
             </li>
           </ul>
           <div class="form-inline mt-2 mt-md-0">
@@ -55,10 +55,8 @@
  </header>
 
 <br/>
- <br />
 
 <div class="container">
-
     <h2>文章列表项</h2>
     <div class="list-group">
         <a href="#" class="list-group-item list-group-item-action" style="display:none;">
@@ -103,84 +101,95 @@
 
 <script src="/static/js/jquery.min.js"></script>
 <script type="text/javascript">
- $(function() {
+    var login = 0;
+     $(function() {
 
-     $.ajax({
-         url: "/is_login/",
-         type: "post",
-         dataType: "json",
-         headers:{
-             "Authorization": "Bearer" + " " +  window.localStorage.getItem("token")
-         },
+         $.ajax({
+             url: "/is_login/",
+             type: "get",
+             dataType: "json",
+             headers:{
+                 "Authorization": "Bearer" + " " +  window.localStorage.getItem("token")
+             },
 
-         success: function (data, status) {
-             if (data.success) {
-                 $("#login").html("退出");
-                 $("#register").html(data.username)
+             success: function (data, status) {
+                 if (data.success) {
+                     $("#login").html("退出");
+                     $("#register").html(data.username);
+                     login = 1
+                 }
+             },
+             error: function (XHR, textStatus, errorThrown) {
+                 alert("响应状态=" + textStatus );
+             },
+
+         });
+
+         $("#login").click(function(){
+             if (login){
+                window.localStorage.clear();
+                login = 0;
+                $("#login").html("登录");
+                 $("#register").html("注册");
              }
-         },
-         error: function (XHR, textStatus, errorThrown) {
-             alert("响应状态=" + textStatus );
-         },
+             else
+                 $(window).attr("location", "/login/")
 
-     });
+         });
 
-     $("#login").click(function(){
-         if ($("#login").html() ==="退出"){
-            window.localStorage.clear();
-            $("#login").html("登录");
-             $("#register").html("注册");
-         }
-         else
-             $(window).attr("location", "/login/")
+          $("#register").click(function(){
+             if ($("#register").html() ==="注册"){
+                  $(location).attr("href", "/register/")
 
-     });
-
-      $("#register").click(function(){
-         if ($("#register").html() ==="注册"){
-              $(location).attr("href", "/register/")
-
-         }
+             }
 
 
-     });
+         });
 
-     $.get("/index/1/", function (data, status) {
-         html = "";
-         for (i=0; i< data.entries.length; i++){
-            headline = data.entries[i].headline;
-            abstract = data.entries[i].abstract;
-            pub_date = data.entries[i].pub_date;
-            blog = data.entries[i].blog;
-            link = data.entries[i].link;
-            console.log(data);
-            $("#headline").html(headline);
-            $("#abstract").html(abstract);
+          $("#markdown").click(function(){
+              if (login)
+                  $(window).attr("location", "/compile_blog/");
+              else
+                  alert("请先登录")
 
-            html += ' <a href=' + link  + " " + 'class="list-group-item list-group-item-action">';
-            html += "<h6><b>" + headline + "</b></h6>";
-            html += '<p class="text-secondary"><small>' + abstract + '</small></p>';
-            html += "<span><samll style='font-size: 15px'>" + pub_date + "</small></span>";
-            html += "<span><small> | </small></span>";
-            html += "<span>";
+          });
 
-            html += "<span><small >阅读数 10</small></span>";
-            html += "<span><small> | </small></span>";
-            html += "<span><small>评论数 0</small></span>";
-            html += "<span><small> | </small></span>";
-            html +="</span>";
+         $.get("/index/1/", function (data, status) {
+             html = "";
+             for (i=0; i< data.entries.length; i++){
+                headline = data.entries[i].headline;
+                abstract = data.entries[i].abstract;
+                pub_date = data.entries[i].pub_date;
+                blog = data.entries[i].blog;
+                link = data.entries[i].link;
+                console.log(data);
+                $("#headline").html(headline);
+                $("#abstract").html(abstract);
 
-            html += "<span>";
-            html += "<span><small>置顶</small></span>  <span> <small>编辑</small></span>   <span><small>删除</small></span>"
-            html +="</span>";
-            html += "</a>";
-         }
-        $(".list-group").html(html)
+                html += ' <a href=' + link  + " " + 'class="list-group-item list-group-item-action">';
+                html += "<h6><b>" + headline + "</b></h6>";
+                html += '<p class="text-secondary"><small>' + abstract + '</small></p>';
+                html += "<span><samll style='font-size: 15px'>" + pub_date + "</small></span>";
+                html += "<span><small> | </small></span>";
+                html += "<span>";
 
-     },"json");
+                html += "<span><small >阅读数 10</small></span>";
+                html += "<span><small> | </small></span>";
+                html += "<span><small>评论数 0</small></span>";
+                html += "<span><small> | </small></span>";
+                html +="</span>";
+
+                html += "<span>";
+                html += "<span><small>置顶</small></span>  <span> <small>编辑</small></span>   <span><small>删除</small></span>"
+                html +="</span>";
+                html += "</a>";
+             }
+            $(".list-group").html(html)
+
+         },"json");
 
 
-  });
+      });
 
 
 

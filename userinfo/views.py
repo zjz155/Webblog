@@ -24,6 +24,7 @@ class RegisterView(View):
         return render(request, "register.html")
 
     def post(self, request, *args, **kwargs):
+        # print(request.META.get("HTTP_REFERER"))
         username = request.POST.get("username")
         password = request.POST.get("password")
         print("username:", username, "password:", password)
@@ -112,7 +113,7 @@ class UserInfoView(View):
 
 class IsVailTokenView(View):
     @method_decorator(check_token)
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         payload = args[0]
         username =payload["name"]
         dic = {

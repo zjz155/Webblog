@@ -34,6 +34,7 @@ class CompileBlogEntry(View):
     def get(self, request, *args, **kwargs):
         return render(request, "markdown.html")
 
+    @method_decorator(check_token)
     def post(self, request, *args, **kwargs):
         payload = args[0]
         user = UserInfo.objects.filter(username=payload["name"])

@@ -7,7 +7,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
-import Webblog
+from Webblog import settings
+
 from userinfo.models import UserInfo
 
 # 定义JWT的header和payload
@@ -47,7 +48,7 @@ def create_token(header={"alg": "sha256", "typ": "JWT"}, payload={"name": "anony
     s = header_jwt.decode() + "." + payload_jwt.decode()
 
     # 指定一个密钥（secret）https://docs.python.org/3/library/secrets.html?highlight=choice#module-secrets
-    key = Webblog.settings.SECRET_KEY.encode()
+    key = settings.SECRET_KEY.encode()
 
     # 对前两部分 s 的签名
     signature = hmac.new(key, s.encode(), "sha256").hexdigest()
@@ -93,7 +94,12 @@ def check_token(func):
     def wrapper(request, *args, **kwargs):
         token = request.META.get("HTTP_AUTHORIZATION")
         if not token:
-            return HttpResponse("需要认证")
+            dic = {
+                "action": "check token",
+                "success": False,
+                "message": "请重新登寻...",
+            }
+            return JsonResponse(dic)
         token = token.split(" ")[1]
         jwt = token.split(".")
         try:
@@ -122,7 +128,7 @@ def check_token(func):
         exp = payload["exp"]
 
         s = header_jwt + "." + payload_jwt
-        key = Webblog.settings.SECRET_KEY.encode()
+        key = settings.SECRET_KEY.encode()
         signature_ = hmac.new(key, s.encode(), alg).hexdigest()
 
         # 验证签名
