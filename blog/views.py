@@ -182,7 +182,7 @@ class HotEntryView(View):
             "num": len(hot_entry),
             "hot_entry":[{"headline": obj.headline, "url": obj.get_absolute_url} for obj in hot_entry]
         }
-
+        print("test")
         return JsonResponse(dic)
 
 
