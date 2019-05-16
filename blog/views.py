@@ -12,8 +12,50 @@ from blog.models import *
 from common.views import check_token, refresh_token
 from userinfo.models import UserInfo
 
-local_time_zone = (datetime.now() - datetime.utcnow()).seconds / 3600
+# 首页,展示所有文章,按间降序
+class IndexView(View):
+    def get(self, request, data= "html", *args, **kwargs):
+        if data == "html":
+            return render(request, "blog/index.html")
 
+        entry_list = Entry.objects.all().order_by("-pub_date")
+        paginator = Paginator(entry_list, 10)
+        #　所有页的item的总和
+        count = paginator.count
+        # 一共有几页
+        page_num = paginator.num_pages
+
+        # page = request.GET.get('page')
+        # page = 1
+        # 获取某页的对象
+        entries_page = paginator.get_page(data)
+        has_next = entries_page.has_next()
+        has_previous = entries_page.has_previous()
+        page_number= entries_page.number
+        entries_object_list = entries_page.object_list
+
+        entries = [{"headline": obj.headline, "abstract": obj.abstract, "pub_date": obj.pub_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    "user": obj.user.username, "link": obj.get_absolute_url()} for obj in entries_object_list]
+
+        dic = {
+            "page": {
+                "has_next": has_next,
+                "has_previous": has_previous,
+                "nums": page_num,
+                "number": page_number,
+                "count": count,
+            },
+
+            "entries": entries
+
+        }
+        json_str = json.dumps(dic)
+        print(dic['page'])
+        response = HttpResponse(json_str)
+
+        return response
+
+# 开通博客功能
 class GrantBlogView(View):
     @method_decorator(check_token)
     def post(self, request, *args, **kwargs):
@@ -29,10 +71,11 @@ class GrantBlogView(View):
 
         return HttpResponse("成功开通博客")
 
-# @method_decorator(check_token, name="dispatch")
+
+# 写博客
 class CompileBlogEntry(View):
     def get(self, request, *args, **kwargs):
-        return render(request, "markdown.html")
+        return render(request, "blog/markdown.html")
 
     @method_decorator(check_token)
     def post(self, request, *args, **kwargs):
@@ -42,90 +85,97 @@ class CompileBlogEntry(View):
         blog = Blog.objects.filter(user=user[0])
         headline = request.POST["headline"]
         content = request.POST["content"]
-        Entry.objects.update_or_create(blog=blog[0], headline=headline,  defaults={"body_text":content})
+        Entry.objects.update_or_create(user=user[0], headline=headline,  defaults={"body_text":content})
+        print(headline)
         print(content)
 
         return HttpResponse("保存成功")
 
-@check_token
-def write_blog_entry(request, *args, **kwargs):
-    if request.method == "GET":
-        return render(request, "markdown.html")
-
-    user = UserInfo.objects.filter(username="jz-zhou")
-    blog = Blog.objects.filter(user=user[0])
-    content = request.POST["content"]
-    Entry.objects.create(blog=blog[0], headline="2019-04-24 17:49:17django 视图装饰器（View decorators）", body_text=content)
-
-
-    print(content)
-
-    return HttpResponse("ok")
-
-
+# 文章详情
 class DetialEntryView(View):
     def get(self, request, username, article_id, *args, **kwargs):
-        return render(request, "read_markdown.html", context={"username": username, "article_id": article_id})
-
-class ListEntryView(View):
-    def get(self, request, username, *args, **kwargs):
-        return render(request, "read_markdown.html", context={"username": username})
-
-def read(request, usesrname, id, ):
-    return render(request, "read_markdown.html")
+        return render(request, "blog/read_markdown.html", context={"username": username, "article_id": article_id})
 
 
-def read_blog_entry(request, username, article_id, *agrs, **kwargs):
-    entry = get_object_or_404(Entry, id=article_id)
-    headline = entry.headline
-    content =  entry.body_text
+class ReadBlogEntry(View):
+    def get(self, request, username, article_id, *args, **kwargs):
+        entry_user = get_object_or_404(UserInfo, username=username)
+        entry = get_object_or_404(Entry, id=article_id)
+        headline = entry.headline
+        content = entry.body_text
+        entry.rating += 1
+        dic = {
+            "entry_user_id": entry_user.id,
+            "article_id": article_id,
+            "content": content,
+            "headline": headline,
+        }
+        # content = entry.body_text
+        return JsonResponse({"content": content, "headline": headline})
 
 
-    # content = entry.body_text
-    return  JsonResponse({"content": content,"headline": headline})
+# 评论
+class CommentView(View):
+    def get(self, request, article_id, page=1, *args, **kwargs):
+        comment_list = Comment.objects.all().order_by("-created")
+        paginator = Paginator(comment_list, 5)
+        page = paginator.get_page(page)
+        has_next = page.has_next()
+        obj_list = page.object_list
 
-def Profile(request):
-    return render(request, "profile.html")
+        comment = [{"entry_id": obj.entry.id, "username": obj.user.username, "comment": obj.body } for obj in obj_list]
+        dic = {
+            "has_next": has_next,
+            "comment": comment,
+        }
 
+        return JsonResponse(dic)
 
+    def post(self, request, article_id, blog_id, *args, **kwargs):
+        comment = request.POST.get("comment", "")
+        if comment:
+            Comment.objects.create(entry=article_id, blog=blog_id)
+            dic = {
+                "success": True,
+                "messsage": "comment successfull"
+            }
 
-class IndexView(View):
-    def get(self, request, data= "html", *args, **kwargs):
-        if data == "html":
-            return render(request, "index.html")
+            return JsonResponse(dic)
 
-        entry_list = Entry.objects.all().order_by("-pub_date")
-        paginator = Paginator(entry_list, 5)
-        count = paginator.count
-        page_num = paginator.num_pages
+# 回复
+class ReplyView(View):
+    def get(self, request, article_id, page=1, *args, **kwargs):
+        reply_list = Reply.objects.all().order_by("-created")
+        paginator = Paginator(reply_list, 5)
+        page = paginator.get_page(page)
+        has_next = page.has_next()
+        obj_list = page.object_list
 
-        # page = request.GET.get('page')
-        # page = 1
+        reply = [{"comment_id": obj.comment.id, "username": obj.user.username, "reply": obj.body} for obj in obj_list]
+        dic = {
+            "has_next": has_next,
+            "reply": reply,
+        }
 
-        entries_page = paginator.get_page(data)
-        has_next = entries_page.has_next()
-        has_previous = entries_page.has_previous()
+        return JsonResponse(dic)
 
-        entries_object_list = entries_page.object_list
-
-        entries = [{"headline": obj.headline, "abstract": obj.abstract, "pub_date": obj.pub_date.strftime("%Y-%m-%d %H:%M:%S"),
-                    "blog": obj.blog.name, "link": obj.get_absolute_url()} for obj in entries_object_list]
+    def Post(self, request, comment_id, reply, *args, **kwargs):
+        payload = args[0]
+        username = payload["name"]
+        user = UserInfo.objects.get(username=username)
+        reply = request.POST.get("reply", "")
+        Reply.objects.create(comment=comment_id, user=user, body=reply)
 
         dic = {
-            "page": {
-                "has_next": has_next,
-                "has_previous": has_previous,
-                "page_num": page_num,
-            },
-
-            "entries": entries
-
+            "success": True,
+            "message": "reply successfully"
         }
-        json_str = json.dumps(dic)
-        print(entries)
-        response = HttpResponse(json_str)
 
-        return response
+        return JsonResponse(dic)
+
+
+
+
 
 class TestView(View):
     def get(self, request, *args, **kwargs):

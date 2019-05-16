@@ -148,5 +148,3 @@ def check_token(func):
         return func(request, payload)
 
     return wrapper
-
-    # return HttpResponse("ok")

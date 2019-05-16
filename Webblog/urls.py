@@ -17,14 +17,11 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 
 import blog
-from blog.views import write_blog_entry, read_blog_entry, read, GrantBlogView, CompileBlogEntry, TestView, IndexView
+from blog.views import GrantBlogView, CompileBlogEntry, TestView, IndexView
 from userinfo.views import RegisterView, LoginView, UserInfoView, IsVailTokenView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("write_blog_entry/", write_blog_entry),
-    path("read_blog_entry/", read_blog_entry),
-    path("read_blog/", read)
 ]
 
 urlpatterns += [

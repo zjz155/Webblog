@@ -21,8 +21,8 @@
 <body>
 <div class="container-fluid"  >
     <br/>
-    <form method="post" action="/compile_blog/" >
-         <div class="form-group">
+    <div>
+        <div class="form-group">
             <input type="text" class="form-control"  name="headline" id="headline" placeholder="请输入文章标题" style="width: 65%;display:inline" >
             <input type="button" class="btn" id="reported" value="发表文章"/>
             <input type="button" class="btn" id="saving" value="存为草稿" />
@@ -58,7 +58,7 @@
         </textarea>
         </div>
 
-    </form>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -73,8 +73,6 @@
              success: function (data, status) {
                  if (data.success) {
                     console.log("login");
-
-
                  }
                  else{
                       $(".container-fluid").css({display: "none"});
@@ -94,18 +92,20 @@
         });
 
         $("#reported").click(function () {
-            content = $("#content").html();
-            $.ajax({
-                url: "/compile_blog/",
-                type: post,
-                data:{"content": content},
-                datatype: json,
-                headers:{
-                    "Authorization": "Bearer" + " " + window.localStorage.getItem("token"),
-                },
-        });
+             content = $("#content").html();
+             headline = $("#headline").val();
+             console.log(headline)
+             $.ajax({
+                 url: "/compile_blog/",
+                 type: "post",
+                 data: {"headline": headline, "content": content},
+                 datatype: "json",
+                 headers: {
+                     "Authorization": "Bearer" + " " + window.localStorage.getItem("token"),
+                 },
+             });
 
-        });
+         });
 
         /*
         // or

@@ -11,17 +11,18 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 from common.views import *
-from userinfo.models import UserInfo
+from userinfo.models import UserInfo, Contact
 
 # Get an instance of a logger
 # logger = logging.getLogger("django")
 
+# token有效时间
 timedelta = datetime.timedelta(seconds=60*60).total_seconds()
 
 # 注册
 class RegisterView(View):
     def get(self, request, *args, **kwagrs):
-        return render(request, "register.html")
+        return render(request, "userinfo/register.html")
 
     def post(self, request, *args, **kwargs):
         # print(request.META.get("HTTP_REFERER"))
@@ -63,7 +64,7 @@ class RegisterView(View):
 # 登录
 class LoginView(View):
     def get(self, request, *args, **kwargs):
-        return render(request, "login.html")
+        return render(request, "userinfo/login.html")
 
     def post(self, request, *args, **kwargs):
         username = request.POST.get("username")
@@ -96,6 +97,7 @@ class LoginView(View):
 
         return HttpResponse("用户名或密码不正确")
 
+
 class UserInfoView(View):
     @method_decorator(check_token)
     def get(self, request, *args, **kwargs):
@@ -115,6 +117,7 @@ class IsVailTokenView(View):
     @method_decorator(check_token)
     def get(self, request, *args, **kwargs):
         payload = args[0]
+        print("*args:", *args)
         username =payload["name"]
         dic = {
             "action": "login",
@@ -127,3 +130,24 @@ class IsVailTokenView(View):
         return JsonResponse(dic)
         # json_str = json.dumps(dic)
         # return HttpResponse(json_str)
+
+
+# 关注,be_folowed为被关注的人
+class ContactView(View):
+    def post(self, follower, action, be_folowed,  *args, **kwargs):
+        if action == "follow":
+            Contact.objects.create(user_from=follower, user_to=be_folowed)
+            dic = {
+                "success": True,
+                "messages": "cancel successfull"
+            }
+            return JsonResponse(dic)
+        else:
+            contact = Contact.objects.get(user_from=follower, user_to=be_folowed)
+            contact.delete()
+            dic = {
+                "success": True,
+                "messages": "cancel successfull"
+            }
+
+            return JsonResponse(dic)
