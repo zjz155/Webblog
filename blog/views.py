@@ -174,9 +174,16 @@ class ReplyView(View):
         return JsonResponse(dic)
 
 
-class NewView(View):
-    def get(self, request, *args, **kwargs):
-        pass
+class HotEntryView(View):
+    def get(self, request, num, *args, **kwargs):
+        hot_entry = Entry.objects.all().order_by("-rating")[num]
+
+        dic = {
+            "num": len(hot_entry),
+            "hot_entry":[{"headline": obj.headline, "url": obj.get_absolute_url} for obj in hot_entry]
+        }
+
+        return JsonResponse(dic)
 
 
 class TestView(View):
