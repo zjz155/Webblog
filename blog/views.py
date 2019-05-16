@@ -174,7 +174,9 @@ class ReplyView(View):
         return JsonResponse(dic)
 
 
-
+class NewView(View):
+    def get(self, request, *args, **kwargs):
+        pass
 
 
 class TestView(View):
