@@ -112,3 +112,4 @@ venv.bak/
 *.pyc
 .idea/
 migrations/
+db.*
