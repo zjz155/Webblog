@@ -26,6 +26,7 @@ class Contact(models.Model):
     user_to = models.ForeignKey(UserInfo, related_name="rel_to_set", on_delete=models.CASCADE)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         ordering = ("-created",)

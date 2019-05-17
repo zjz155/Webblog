@@ -136,15 +136,14 @@ class IsVailTokenView(View):
 class ContactView(View):
     def post(self, follower, action, be_folowed,  *args, **kwargs):
         if action == "follow":
-            Contact.objects.create(user_from=follower, user_to=be_folowed)
+            Contact.objects.update_or_create(user_from=follower, user_to=be_folowed, defaults={"is_active": True})
             dic = {
                 "success": True,
-                "messages": "cancel successfull"
+                "messages": "contact successfull"
             }
             return JsonResponse(dic)
         else:
-            contact = Contact.objects.get(user_from=follower, user_to=be_folowed)
-            contact.delete()
+            Contact.objects.filter(user_from=follower, user_to=be_folowed).upadte(is_active=False)
             dic = {
                 "success": True,
                 "messages": "cancel successfull"
