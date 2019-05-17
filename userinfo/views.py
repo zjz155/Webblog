@@ -64,7 +64,7 @@ class RegisterView(View):
 # 登录
 class LoginView(View):
     def get(self, request, *args, **kwargs):
-        return render(request, "userinfo/login.html")
+        return render(request, "userinfo/login.html",)
 
     def post(self, request, *args, **kwargs):
         username = request.POST.get("username")
