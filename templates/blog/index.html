@@ -22,7 +22,9 @@
 </head>
 <body>
 
- <header>
+<div class="container-fluid">
+
+    <header>
       <!-- Fixed navbar -->
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="#">LIFE IS SHORT</a>
@@ -52,46 +54,52 @@
           </div>
         </div>
       </nav>
- </header>
+    </header>
 
-<br/>
 
-<div class="container">
-    <h2>文章列表项</h2>
-    <div class="list-group">
-        <a href="#" class="list-group-item list-group-item-action" style="display:none;">
-            <h6><b>Default Django settings</b></h6>
-            <p class="text-secondary"> <small>插入操作较为简单，当往表中插入记录时，提交事务时会对全文索引上的列进行分词存储到FTS Index Cache，最后在批量更新到Auxiliary Table中.插入操作较为简单，当往表中插入记录时，提交事务时会对全文索引上的列进行分词存储到FTS Index Cache，最后在批量更新到Auxiliary Table中</small></p>
-
-            <span>
-                <span><small>2019-04-25 18:01:34</small></span>
-                <span><small>|</small></span>
-                <span><small>阅读数 10</small></span>
-                <span><small>|</small></span>
-                <span><small>评论数 0</small></span>
-                <span><small>|</small></span>
-            </span>
-            <sapn>
-                <span><small>置顶</small></span>  <span> <small>编辑</small></span>   <span><small>删除</small></span>
-            </sapn>
-
-        <a href="#" class="list-group-item list-group-item-action"　style="display:none;">Third item</a>
-    </div>
     <br/>
+    <br/>
+    <br/>
+    <h2>文章列表项</h2>
+    <div class="row" >
+        <div col-2 style="float:none;margin: 0 auto">1</div>
+        <div class="col-8 list-group" style="float:none;margin: 0 auto">
+            <a href="#" class="list-group-item list-group-item-action" style="display:none;">
+                <h6><b>Default Django settings</b></h6>
+                <p class="text-secondary"> <small>插入操作较为简单，当往表中插入记录时，提交事务时会对全文索引上的列进行分词存储到FTS Index Cache，最后在批量更新到Auxiliary Table中.插入操作较为简单，当往表中插入记录时，提交事务时会对全文索引上的列进行分词存储到FTS Index Cache，最后在批量更新到Auxiliary Table中</small></p>
 
-{#        <div class="row">#}
-{#            <div class="col-md-4"></div>#}
-{#                <div class="col-md-4">#}
-{#                    <ul class="pagination">#}
-{#                        <li class="page-item"><a class="page-link" href="#">上一页</a></li>#}
-{#                        <li class="page-item"><a class="page-link" href="#">1</a></li>#}
-{#                        <li class="page-item"><a class="page-link" href="#">下－页</a></li>#}
-{#                    </ul>#}
-{#            </div>#}
-{#        </div>#}
+                <span>
+                    <span><small>2019-04-25 18:01:34</small></span>
+                    <span><small>|</small></span>
+                    <span><small>阅读数 10</small></span>
+                    <span><small>|</small></span>
+                    <span><small>评论数 0</small></span>
+                    <span><small>|</small></span>
+                </span>
+                <sapn>
+                    <span><small>置顶</small></span>  <span> <small>编辑</small></span>   <span><small>删除</small></span>
+                </sapn>
 
+            <a href="#" class="list-group-item list-group-item-action"　style="display:none;">Third item</a>
+            </a>
+        </div>
+        <div col-2 style="float:none;margin: 0 auto">1</div>
+        <br/>
+    </div>
+
+    {#        <div class="row">#}
+    {#            <div class="col-md-4"></div>#}
+    {#                <div class="col-md-4">#}
+    {#                    <ul class="pagination">#}
+    {#                        <li class="page-item"><a class="page-link" href="#">上一页</a></li>#}
+    {#                        <li class="page-item"><a class="page-link" href="#">1</a></li>#}
+    {#                        <li class="page-item"><a class="page-link" href="#">下－页</a></li>#}
+    {#                    </ul>#}
+    {#            </div>#}
+    {#        </div>#}
 
 </div>
+
 
 <footer class="footer">
     <div class="container text-center">
@@ -190,8 +198,6 @@
 
 
       });
-
-
 
 </script>
 
