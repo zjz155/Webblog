@@ -19,11 +19,11 @@ class IndexView(View):
             return render(request, "blog/index.html")
 
         entry_list = Entry.objects.all().order_by("-pub_date")
-        paginator = Paginator(entry_list, 10)
+        paginator = Paginator(entry_list, 2)
         #　所有页的item的总和
         count = paginator.count
         # 一共有几页
-        page_num = paginator.num_pages
+        num_pages = paginator.num_pages
 
         # page = request.GET.get('page')
         # page = 1
@@ -38,19 +38,18 @@ class IndexView(View):
                     "user": obj.user.username, "link": obj.get_absolute_url()} for obj in entries_object_list]
 
         dic = {
-            "page": {
-                "has_next": has_next,
-                "has_previous": has_previous,
-                "nums": page_num,
-                "number": page_number,
-                "count": count,
-            },
+
+            "has_next": has_next,
+            "has_previous": has_previous,
+            "num_pages": num_pages,
+            "page_number": page_number,
+            "count": count,
 
             "entries": entries
 
         }
         json_str = json.dumps(dic)
-        print(dic['page'])
+        print(dic)
         response = HttpResponse(json_str)
 
         return response

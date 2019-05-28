@@ -21,82 +21,122 @@
 
 </head>
 <body>
+<header>
+  <!-- Fixed navbar -->
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">LIFE IS SHORT</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item ">
+          <a class="nav-link" href="/index/html/">首页 <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">个人中心</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" >项目介绍</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" id="markdown">Markdown编辑器</a>
+        </li>
+      </ul>
+      <div class="form-inline mt-2 mt-md-0">
+
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0"  id="login">登录</button>&nbsp;&nbsp;
+          <button class="btn btn-outline-success my-2 my-sm-0" id="register">注册</button>
+      </div>
+    </div>
+  </nav>
+</header>
+<br/>
+<br/>
+<br/>
 
 <div class="container-fluid">
 
-    <header>
-      <!-- Fixed navbar -->
-      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">LIFE IS SHORT</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item ">
-              <a class="nav-link" href="/index/html/">首页 <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled" href="#">个人中心</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled" href="#" >项目介绍</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" id="markdown">Markdown编辑器</a>
-            </li>
-          </ul>
-          <div class="form-inline mt-2 mt-md-0">
+  <h2>zjz155 的博客</h2>
+    <div class="row m-5" >
+        <div class="col-md border p-0" style="margin: 0 7px">
+            <div class="card rounded-0">
+                <div class="card-header border-bottom bg-white d-flex justify-content-between align-items-center">
+                    <img src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" style="width: 40px;height: 40px">
+                    <span class=""><button class="btn  btn-sm btn-outline-danger " >关注</button></span>
+                </div>
+                <div class="card-body border-bottom d-flex justify-content-between align-items-center" style="margin-bottom: -15px">
+                    <dl><dd>关注</dd><dd class="text-center">21</dd></dl>
+                    <dl><dd>粉丝</dd><dd class="text-center">2</dd></dl>
+                    <dl><dd>评论</dd><dd class="text-center">18</dd></dl>
+                </div>
+                <div class="card-footer border-bottom bg-white d-flex justify-content-between">
+                    <div><span>年限: </span><span>1</span> </div>
+                     <div><span>访问: </span><span>35</span> </div>
 
-              <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success my-2 my-sm-0"  id="login">登录</button>&nbsp;&nbsp;
-              <button class="btn btn-outline-success my-2 my-sm-0" id="register">注册</button>
-          </div>
+                </div>
+            </div>
+
+            <div class="card rounded-0 mt-1">
+
+                <div class="card-body border-bottom d-flex justify-content-between align-items-center" style="margin-bottom: -15px">
+                    <img src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="img-fluid">
+                </div>
+                <div class="card-footer border-bottom bg-white d-flex justify-content-start">
+                    <div>广告位</div>
+
+                </div>
+            </div>
+
+             <div class="card rounded-0 mt-1">
+                 <div class="card-header p-0 d-flex justify-content-start">
+                     <div>个人分类</div>
+                </div>
+
+                <div class="card-body border-bottom d-flex flex-column" style="margin-bottom: -15px">
+                    <div>分类1</div>
+                    <div>分类1</div>
+                    <div>分类1</div>
+                    <div>分类1</div>
+                </div>
+
+            </div>
         </div>
-      </nav>
-    </header>
+        <div class="col-md-7" style="margin: 0 7px">
+
+            <ul class="list-group" style="margin: 0 -15px" id="content-list">
+{#              <li class="list-group-item list-group-item-action">#}
+{#                  <a href="#" class="text-dark d-block">#}
+{#                      <h3>python入门到精通</h3>#}
+{#                      <p class="text-muted">python是一门易于上手的編程语言, 适合入门学习编程. python同时也是一面向对象的编程语言, 可用于开发复杂的大型应用</p>#}
+{#                  </a>#}
+{##}
+{#                  <div>#}
+{#                      <span>2019-06-07</span> ｜#}
+{#                      <span>阅读 0</span> |#}
+{#                      <span>评论 0</span>#}
+{#                  </div>#}
+{#              </li>#}
+{#              <li class="list-group-item list-group-item-action">Second item</li>#}
+{#              <li class="list-group-item list-group-item-action">Third item</li>#}
+            </ul>
+
+            <ul class="pagination d-flex justify-content-center align-items-center rounded-0 border-left border-right border-bottom p-3" style="margin: 0 -15px" id="pagination">
+                <li class="page-item"><a class="page-link" href="#"><< </a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">>></a></li>
+            </ul>
 
 
-    <br/>
-    <br/>
-    <br/>
-    <h2>文章列表项</h2>
-    <div class="row" >
-        <div col-2 style="float:none;margin: 0 auto">1</div>
-        <div class="col-8 list-group" style="float:none;margin: 0 auto">
-            <a href="#" class="list-group-item list-group-item-action" style="display:none;">
-                <h6><b>Default Django settings</b></h6>
-                <p class="text-secondary"> <small>插入操作较为简单，当往表中插入记录时，提交事务时会对全文索引上的列进行分词存储到FTS Index Cache，最后在批量更新到Auxiliary Table中.插入操作较为简单，当往表中插入记录时，提交事务时会对全文索引上的列进行分词存储到FTS Index Cache，最后在批量更新到Auxiliary Table中</small></p>
-
-                <span>
-                    <span><small>2019-04-25 18:01:34</small></span>
-                    <span><small>|</small></span>
-                    <span><small>阅读数 10</small></span>
-                    <span><small>|</small></span>
-                    <span><small>评论数 0</small></span>
-                    <span><small>|</small></span>
-                </span>
-                <sapn>
-                    <span><small>置顶</small></span>  <span> <small>编辑</small></span>   <span><small>删除</small></span>
-                </sapn>
-
-            <a href="#" class="list-group-item list-group-item-action"　style="display:none;">Third item</a>
-            </a>
         </div>
-        <div col-2 style="float:none;margin: 0 auto">1</div>
+        <div class="col-md" style="margin: 0 7px">  </div>
         <br/>
     </div>
 
-    {#        <div class="row">#}
-    {#            <div class="col-md-4"></div>#}
-    {#                <div class="col-md-4">#}
-    {#                    <ul class="pagination">#}
-    {#                        <li class="page-item"><a class="page-link" href="#">上一页</a></li>#}
-    {#                        <li class="page-item"><a class="page-link" href="#">1</a></li>#}
-    {#                        <li class="page-item"><a class="page-link" href="#">下－页</a></li>#}
-    {#                    </ul>#}
-    {#            </div>#}
-    {#        </div>#}
+
 
 </div>
 
@@ -170,31 +210,60 @@
                 pub_date = data.entries[i].pub_date;
                 blog = data.entries[i].blog;
                 link = data.entries[i].link;
+                page_number = data.page_number;
+                num_pages = data.num_pages;
+                has_next = data.has_next;
+
                 console.log(data);
                 $("#headline").html(headline);
                 $("#abstract").html(abstract);
 
-                html += ' <a href=' + link  + " " + 'class="list-group-item list-group-item-action">';
-                html += "<h6><b>" + headline + "</b></h6>";
-                html += '<p class="text-secondary"><small>' + abstract + '</small></p>';
-                html += "<span><samll style='font-size: 15px'>" + pub_date + "</small></span>";
-                html += "<span><small> | </small></span>";
-                html += "<span>";
 
-                html += "<span><small >阅读数 10</small></span>";
-                html += "<span><small> | </small></span>";
-                html += "<span><small>评论数 0</small></span>";
-                html += "<span><small> | </small></span>";
-                html +="</span>";
 
-                html += "<span>";
-                html += "<span><small>置顶</small></span>  <span> <small>编辑</small></span>   <span><small>删除</small></span>"
-                html +="</span>";
-                html += "</a>";
+                html += '<li class="list-group-item list-group-item-action rounded-0 ">';
+                html += '<div>';
+                html += '<a  href=' + link + ' ' + 'class="text-dark d-block">';
+                html += '<h5>' + headline + '</h5>';
+                html += '<p class="text-muted">' + abstract + '</p>';
+                html += '</a>';
+                html += '</div>';
+                html += '<div>';
+                html += '<span>2019-06-07</span> ｜';
+                html += '<span>阅读 0</span> |';
+                html += '<span>评论 0</span>';
+                html += '</div>';
+                html += '</li>';
+
+
              }
-            $(".list-group").html(html)
+            $("#content-list").html(html);
+             if(num_pages > 10)
+                i = 10;
+             else
+                i = num_pages;
+
+            html = '<li class="page-item"><a class="page-link" href="#"><< </a></li>';
+            html += '<li class="page-item active"><a class="page-link" href="#" id="1">' + 1 + '</a></li>';
+
+            for(j=2; j<=i; j++)
+                html += '<li class="page-item"><a class="page-link" href="#" >' + j + '</a></li>';
+
+            html += ' <li class="page-item"><a class="page-link" href="#">>></a></li>';
+
+            $("#pagination").html(html);
+
+            <!--o-->
+            $('a', "ul#pagination").click(function () {
+                console.log($(this).html());
+            });
 
          },"json");
+
+
+
+
+
+
 
 
       });
