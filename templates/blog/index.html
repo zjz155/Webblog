@@ -31,7 +31,7 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item ">
-          <a class="nav-link" href="/index/html/">首页 <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="/">首页 <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
           <a class="nav-link disabled" href="#">个人中心</a>
@@ -80,7 +80,7 @@
 
             <div class="card rounded-0 mt-1">
 
-                <div class="card-body border-bottom d-flex justify-content-between align-items-center" style="margin-bottom: -15px">
+                <div class="card-body border-bottom d-flex justify-content-between align-items-center" style="margin-bottom: -15px" id="sider-bar-ad">
                     <img src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="img-fluid">
                 </div>
                 <div class="card-footer border-bottom bg-white d-flex justify-content-start">
@@ -94,7 +94,7 @@
                      <div>个人分类</div>
                 </div>
 
-                <div class="card-body border-bottom d-flex flex-column" style="margin-bottom: -15px">
+                <div class="card-body border-bottom d-flex flex-column" style="margin-bottom: -15px" id="sider-bar-category">
                     <div>分类1</div>
                     <div>分类1</div>
                     <div>分类1</div>
@@ -150,61 +150,73 @@
 <script src="/static/js/jquery.min.js"></script>
 <script type="text/javascript">
     var login = 0;
-     $(function() {
 
-         $.ajax({
-             url: "/is_login/",
-             type: "get",
-             dataType: "json",
-             headers:{
-                 "Authorization": "Bearer" + " " +  window.localStorage.getItem("token")
-             },
+    $(function() {
 
-             success: function (data, status) {
-                 if (data.success) {
-                     $("#login").html("退出");
-                     $("#register").html(data.username);
-                     login = 1
-                 }
-             },
-             error: function (XHR, textStatus, errorThrown) {
-                 alert("响应状态=" + textStatus );
-             },
+        $.ajax({
+         url: "/is_login/",
+         type: "get",
+         dataType: "json",
+         headers:{
+             "Authorization": "Bearer" + " " +  window.localStorage.getItem("token")
+         },
 
-         });
-
-         $("#login").click(function(){
-             if (login){
-                window.localStorage.clear();
-                login = 0;
-                $("#login").html("登录");
-                 $("#register").html("注册");
+         success: function (data, status) {
+             if (data.success) {
+                 $("#login").html("退出");
+                 $("#register").html(data.username);
+                 login = 1
              }
-             else
-                 $(window).attr("location", "/login/")
+         },
+         error: function (XHR, textStatus, errorThrown) {
+             alert("响应状态=" + textStatus );
+         },
 
-         });
+        });
 
-          $("#register").click(function(){
-             if ($("#register").html() ==="注册"){
-                  $(location).attr("href", "/register/")
+        $("#login").click(function(){
+         if (login){
+            window.localStorage.clear();
+            login = 0;
+            $("#login").html("登录");
+             $("#register").html("注册");
+         }
+         else
+             $(window).attr("location", "/login/")
 
-             }
+        });
+
+        $("#register").click(function(){
+         if ($("#register").html() ==="注册"){
+              $(location).attr("href", "/register/")
+
+         }
 
 
-         });
+        });
 
-          $("#markdown").click(function(){
-              if (login)
-                  $(window).attr("location", "/compile_blog/");
-              else
-                  alert("请先登录")
+        $("#markdown").click(function(){
+          if (login)
+              $(window).attr("location", "/compile_blog/");
+          else
+              alert("请先登录")
 
-          });
+        });
 
-         $.get("/index/1/", function (data, status) {
+
+
+
+      });
+
+    <!--请求一页数据-->
+    function page_request(page, uname) {
+         if (window.localStorage.getItem("username"))
+             uname = window.localStorage.getItem("username");
+
+         $.get("/blog/" + uname + "/"  + page + "/", function (data, status) {
              html = "";
              for (i=0; i< data.entries.length; i++){
+                username = data.entries[i].user;
                 headline = data.entries[i].headline;
                 abstract = data.entries[i].abstract;
                 pub_date = data.entries[i].pub_date;
@@ -212,7 +224,9 @@
                 link = data.entries[i].link;
                 page_number = data.page_number;
                 num_pages = data.num_pages;
+                has_previous = data.has_previous;
                 has_next = data.has_next;
+
 
                 console.log(data);
                 $("#headline").html(headline);
@@ -228,7 +242,8 @@
                 html += '</a>';
                 html += '</div>';
                 html += '<div>';
-                html += '<span>2019-06-07</span> ｜';
+                html += '<span>' + username + '<span> | ';
+                html += '<span>' + pub_date + '</span> ｜';
                 html += '<span>阅读 0</span> |';
                 html += '<span>评论 0</span>';
                 html += '</div>';
@@ -237,36 +252,79 @@
 
              }
             $("#content-list").html(html);
-             if(num_pages > 10)
-                i = 10;
-             else
-                i = num_pages;
 
-            html = '<li class="page-item"><a class="page-link" href="#"><< </a></li>';
-            html += '<li class="page-item active"><a class="page-link" href="#" id="1">' + 1 + '</a></li>';
-
-            for(j=2; j<=i; j++)
-                html += '<li class="page-item"><a class="page-link" href="#" >' + j + '</a></li>';
-
-            html += ' <li class="page-item"><a class="page-link" href="#">>></a></li>';
-
-            $("#pagination").html(html);
-
-            <!--o-->
-            $('a', "ul#pagination").click(function () {
-                console.log($(this).html());
-            });
+             <!--生成分页-->
+             paginator(uname, 3, page, has_previous, has_next)
 
          },"json");
 
 
 
+    }
+
+
+    <!--实现翻页-->
+    function paginator(uname, num, page, has_previous, has_next){
+         if(num_pages > num)
+            i = num;
+         else
+            i = num_pages;
+
+        if(!has_previous)
+            html = '<li class="page-item disabled"><a class="page-link" href="#" id="up"><< </a></li>';
+        else
+            html = '<li class="page-item"><a class="page-link" href="#" id="up"><< </a></li>';
+
+
+        start = parseInt(page/num) + 1;
+        console.log("has_next:", has_next);
+
+        <!--生成页码-->
+        for(j=start; j<=i+start && j<=num_pages; j++){
+            if(parseInt(page) === j)
+                html += '<li class="page-item active"><a class="page-link" href="#">' + j + '</a></li>';
+            else{
+                html += '<li class="page-item"><a class="page-link" href="#">' + j + '</a></li>';
+            }
+        }
+
+        if(!has_next)
+            html += ' <li class="page-item disabled"><a class="page-link" href="#" id="down">>></a></li>';
+        else
+            html += ' <li class="page-item"><a class="page-link" href="#" id="down">>></a></li>';
+
+        $("#pagination").html(html);
+
+
+        <!--为页码绑定事件-->
+        $('a', "ul#pagination").click(function () {
+            <!--获取左右翻页的id-->
+            p = $(this).attr("id");
+            switch (p) {
+                case "up":
+                    n = $('.active > a', "ul#pagination").html();
+                    console.log("n:" + n);
+                    page_request((parseInt(n) - 1), uname);
+                    break;
+
+                case "down":
+                    n = $('.active > a', "ul#pagination").html();
+                    page_request((parseInt(n) + 1), uname);
+                    break;
+                default:
+                     page_request($(this).html(), uname);
+
+            }
+
+        });
+     }
 
 
 
+    $(page_request(page=1, uname="jz_zhou"));
+    
 
 
-      });
 
 </script>
 

@@ -61,7 +61,8 @@
                             window.localStorage.clear();
 
                         window.localStorage.setItem("token", data.token);
-                        $(location).attr("href", "/index/html/")
+                        window.localStorage.setItem("username", data.username);
+                        $(location).attr("href", "/blog/jz_zhou/list")
                     }
 
 		}, "json");

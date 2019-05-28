@@ -10,7 +10,7 @@ class Blog(models.Model):
     # 个性答名
     tagline = models.TextField(null=True)
 
-    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, null=True)
+    blog = models.OneToOneField(UserInfo, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name

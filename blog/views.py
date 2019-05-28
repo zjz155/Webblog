@@ -14,12 +14,14 @@ from userinfo.models import UserInfo
 
 # 首页,展示所有文章,按间降序
 class IndexView(View):
-    def get(self, request, data= "html", *args, **kwargs):
-        if data == "html":
+    def get(self, request, username="jz_zhou", data= "list", *args, **kwargs):
+        if data == "list":
             return render(request, "blog/index.html")
 
-        entry_list = Entry.objects.all().order_by("-pub_date")
-        paginator = Paginator(entry_list, 2)
+        user = UserInfo.objects.get(username=username)
+
+        entry_list = Entry.objects.filter(user=user).order_by("-pub_date")
+        paginator = Paginator(entry_list, 1)
         #　所有页的item的总和
         count = paginator.count
         # 一共有几页
@@ -34,8 +36,10 @@ class IndexView(View):
         page_number= entries_page.number
         entries_object_list = entries_page.object_list
 
+        print("blog:", UserInfo.objects.get(username = "jz_zhou").blog.name)
+
         entries = [{"headline": obj.headline, "abstract": obj.abstract, "pub_date": obj.pub_date.strftime("%Y-%m-%d %H:%M:%S"),
-                    "user": obj.user.username, "link": obj.get_absolute_url()} for obj in entries_object_list]
+                    "user": UserInfo.objects.get(username = obj.user.username).blog.name, "link": obj.get_absolute_url()} for obj in entries_object_list]
 
         dic = {
 
