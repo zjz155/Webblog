@@ -95,11 +95,13 @@ def check_token(func):
         token = request.META.get("HTTP_AUTHORIZATION")
         if not token:
             dic = {
-                "action": "check token",
                 "success": False,
                 "message": "请重新登寻...",
             }
-            return JsonResponse(dic)
+            HttpResponse()
+            response = JsonResponse(dic)
+            response.status_code = 401
+            return response
         token = token.split(" ")[1]
         jwt = token.split(".")
         try:
@@ -108,11 +110,12 @@ def check_token(func):
             signature_jwt = jwt[2]
         except IndexError:
             dic = {
-                "action": "check token",
                 "success": False,
                 "message": "请重新登寻...",
             }
-            return JsonResponse(dic)
+            response = JsonResponse(dic)
+            response.status_code = 401
+            return response
 
         # 解码后得到bytes格式
         header_ = base64.urlsafe_b64decode(header_jwt)
@@ -138,12 +141,13 @@ def check_token(func):
         # 如果 验证签名失败或过期要求重新登入　
         if not flag or is_expire(exp) :
             dic = {
-                "action": "check token",
                 "success": False,
                 "message": "请重新登寻...",
             }
             json_str = json.dumps(dic)
-            return HttpResponse(json_str)
+            response = HttpResponse(json_str)
+            response.status_code = 401
+            return response
 
         return func(request, payload)
 

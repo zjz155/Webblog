@@ -17,7 +17,7 @@ from userinfo.models import UserInfo, Contact
 # logger = logging.getLogger("django")
 
 # token有效时间
-timedelta = datetime.timedelta(seconds=60*60).total_seconds()
+timedelta = datetime.timedelta(seconds=120).total_seconds()
 
 # 注册
 class RegisterView(View):

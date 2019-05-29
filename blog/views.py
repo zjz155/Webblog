@@ -16,7 +16,7 @@ from userinfo.models import UserInfo
 class IndexView(View):
     def get(self, request, username="jz_zhou", data= "list", *args, **kwargs):
         if data == "list":
-            return render(request, "blog/index.html")
+            return render(request, "blog/blog.html")
 
         user = UserInfo.objects.get(username=username)
 
@@ -97,7 +97,7 @@ class CompileBlogEntry(View):
 # 文章详情
 class DetialEntryView(View):
     def get(self, request, username, article_id, *args, **kwargs):
-        return render(request, "blog/read_markdown.html", context={"username": username, "article_id": article_id})
+        return render(request, "blog/read_markdown.html")
 
 
 class ReadBlogEntry(View):
