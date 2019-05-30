@@ -58,22 +58,29 @@
     </div>
 </div>
  <script>
-       $(function(){
-            $("#btnPost").click(function(){
-                username = $("#username").val();
-                password = $("#password").val();
-                email = $("#email").val();
-                $.post("/register/", {"username": username, "password": password, "email": email}, function(data,status,xhr){
+       $(function() {
+           $("#btnPost").click(function () {
+               username = $("#username").val();
+               password = $("#password").val();
+               email = $("#email").val();
+               $.ajax({
+                   url: "/register/",
+                   type: "post",
+                   dataType: "json",
+                   data: {"username": username, "password": password, "email": email},
+                   success: function (data, status, xhr) {
+                           $(location).attr("href", "/login/");
 
-                    if (data.success === true)
-                       $(location).attr("href", "/login/");
-                    else
-                        alert("用户名重复或密码有误");
+                   },
+                   error: function (XHR, textStatus, errorThrown) {
+                       alert("用户名重复或密码有误");
+                   }
+               });
+           });
+       });
 
 
-                }, "json");
-            });
-        });
+
 
 
  </script>

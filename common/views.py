@@ -30,7 +30,7 @@ def dinfine_header_payload(username, timedelta, iat, admin=False, alg="sha256"):
     return {"header": header, "payload": payload}
 
 # 计算token
-def create_token(header={"alg": "sha256", "typ": "JWT"}, payload={"name": "anonymous", "sub": "subject"}):
+def create_access_token(header={"alg": "sha256", "typ": "JWT"}, payload={"name": "anonymous", "sub": "subject"}):
 
     # 将header、payload字典对象变为字符串
     header_json_str = json.dumps(header)
@@ -53,9 +53,9 @@ def create_token(header={"alg": "sha256", "typ": "JWT"}, payload={"name": "anony
     # 对前两部分 s 的签名
     signature = hmac.new(key, s.encode(), "sha256").hexdigest()
     # 把 Header、Payload、Signature 三个部分拼成一个字符串，每个部分之间用"点"（.）分隔
-    token = s + "." + signature
+    access_token = s + "." + signature
 
-    return token
+    return access_token
 
 # 判断token是否过期
 def is_expire(exp):
@@ -66,7 +66,7 @@ def is_expire(exp):
         return False
 
 # 计算新的token
-def refresh_token(payload):
+def refresh_access_token(payload):
     iat = payload["iat"]
     username = payload["name"]
     timedelta = payload["exp"] - iat
@@ -85,15 +85,15 @@ def refresh_token(payload):
         iat = user[0].iat.timestamp()
         print("new_iat:", datetime.datetime.fromtimestamp(iat))
         header_payload = dinfine_header_payload(username, timedelta, iat)
-        return create_token(**header_payload)
+        return create_access_token(**header_payload)
 
     return None
 
 # 验证token签名
-def check_token(func):
+def check_access_token(func):
     def wrapper(request, *args, **kwargs):
-        token = request.META.get("HTTP_AUTHORIZATION")
-        if not token:
+        access_token = request.META.get("HTTP_AUTHORIZATION")
+        if not access_token:
             dic = {
                 "success": False,
                 "message": "请重新登寻...",
@@ -102,8 +102,8 @@ def check_token(func):
             response = JsonResponse(dic)
             response.status_code = 401
             return response
-        token = token.split(" ")[1]
-        jwt = token.split(".")
+        access_token = access_token.split(" ")[1]
+        jwt = access_token.split(".")
         try:
             header_jwt = jwt[0]
             payload_jwt= jwt[1]
@@ -149,6 +149,6 @@ def check_token(func):
             response.status_code = 401
             return response
 
-        return func(request, payload)
+        return func(request, payload, *args, **kwargs)
 
     return wrapper

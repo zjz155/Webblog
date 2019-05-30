@@ -22,6 +22,7 @@
     <script src="/static/js/webblog/blog.js"></script>
 
 
+
 </head>
 <body>
 <header>
@@ -43,7 +44,7 @@
           <a class="nav-link disabled" href="#" >项目介绍</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" id="markdown">Markdown编辑器</a>
+          <a class="nav-link" href="#" target="_self" id="markdown">Markdown编辑器</a>
         </li>
       </ul>
       <div class="form-inline mt-2 mt-md-0">
@@ -61,13 +62,13 @@
 
 <div class="container-fluid">
 
-  <h2>zjz155 的博客</h2>
+{#  <h2>zjz155 的博客</h2>#}
     <div class="row m-5" >
         <div class="col-md border p-0" style="margin: 0 7px">
             <div class="card rounded-0">
                 <div class="card-header border-bottom bg-white d-flex justify-content-between align-items-center">
-                    <img src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" style="width: 40px;height: 40px">
-                    <span class=""><button class="btn  btn-sm btn-outline-danger " >关注</button></span>
+                    <span><img alt="头像" src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" style="width: 40px;height: 40px"><span id="username-siderbar"> zjz155</span></span>
+                    <span class=""><button class="btn  btn-sm btn-outline-danger " id="contact">关注</button></span>
                 </div>
                 <div class="card-body border-bottom d-flex justify-content-between align-items-center" style="margin-bottom: -15px">
                     <dl><dd>关注</dd><dd class="text-center">21</dd></dl>
@@ -111,8 +112,9 @@
             <ul class="list-group" style="margin: 0 -15px" id="content-list">
 {#              <li class="list-group-item list-group-item-action">#}
 {#                  <a href="#" class="text-dark d-block">#}
-{#                      <h3>python入门到精通</h3>#}
-{#                      <p class="text-muted">python是一门易于上手的編程语言, 适合入门学习编程. python同时也是一面向对象的编程语言, 可用于开发复杂的大型应用</p>#}
+{#                      <h3>你还没有发布任何文章</h3>#}
+{#                      <p class="text-muted">你还没有章,赶紧来写作吧</p>#}
+{#                      <p class="text-muted">你还没有章,赶紧来写作吧</p>#}
 {#                  </a>#}
 {##}
 {#                  <div>#}
@@ -121,16 +123,14 @@
 {#                      <span>评论 0</span>#}
 {#                  </div>#}
 {#              </li>#}
-{#              <li class="list-group-item list-group-item-action">Second item</li>#}
-{#              <li class="list-group-item list-group-item-action">Third item</li>#}
             </ul>
 
-            <ul class="pagination d-flex justify-content-center align-items-center rounded-0 border-left border-right border-bottom p-3" style="margin: 0 -15px" id="pagination">
-                <li class="page-item"><a class="page-link" href="#"><< </a></li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">>></a></li>
+            <ul class="pagination d-flex justify-content-center align-items-center rounded-0 border-left border-right border p-3" style="margin: 0 -15px" id="pagination">
+{#                <li class="page-item " ><a class="page-link" href="#" ><< </a></li>#}
+{#                <li class="page-item "><a class="page-link" href="#">1</a></li>#}
+{#                <li class="page-item active"><a class="page-link" href="#">2</a></li>#}
+{#                <li class="page-item "><a class="page-link" href="#">3</a></li>#}
+{#                <li class="page-item "><a class="page-link" href="#">>></a></li>#}
             </ul>
 
 

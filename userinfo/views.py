@@ -10,14 +10,12 @@ from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 
+from blog.models import Blog
 from common.views import *
 from userinfo.models import UserInfo, Contact
 
-# Get an instance of a logger
-# logger = logging.getLogger("django")
-
 # token有效时间
-timedelta = datetime.timedelta(seconds=120).total_seconds()
+timedelta = datetime.timedelta(seconds=600).total_seconds()
 
 # 注册
 class RegisterView(View):
@@ -43,12 +41,18 @@ class RegisterView(View):
 
         # 数据校验通过，创建用户
         if username and password:
-            UserInfo.objects.create(username=username, password=make_password(password, None, "pbkdf2_sha256"))
+            user = UserInfo.objects.create(username=username, password=make_password(password, None, "pbkdf2_sha256"))
+
+            print("user:", user)
             dic = {
                 "action": "register",
                 "success": True,
                 "message": "注册成功",
             }
+
+            # 注册的同时开通博客
+            Blog.objects.create(blog=user, name=user.username + " of blog")
+
             response = JsonResponse(dic)
             return response
 
@@ -67,12 +71,23 @@ class LoginView(View):
         return render(request, "userinfo/login.html",)
 
     def post(self, request, *args, **kwargs):
+
+        dic = {
+            "is_login": False,
+            "username": "anonymous",
+            "access_token": "",
+            "message": "您的收入有误",
+        }
+
         username = request.POST.get("username")
         password = request.POST.get("password")
 
         user = UserInfo.objects.filter(username=username)
         if not user:
-            return HttpResponse("用户名不存在")
+            responese = JsonResponse(dic)
+            responese.status_code = 404
+
+            return responese
 
         password_ = user[0].password
         pwd = check_password(password, password_, None, "pbkdf2_sha256")
@@ -82,26 +97,22 @@ class LoginView(View):
             last_login = user[0].last_login.timestamp()
 
             header_payload = dinfine_header_payload(username, timedelta, last_login)
-            token = create_token(**header_payload)
+            access_token = create_access_token(**header_payload)
+            dic.update({"is_login": True, "username": username, "access_token": access_token, "message": "登录成功"})
 
-            dic = {
-                "action": "login",
-                "username": username,
-                "success": True,
-                "token": token,
-                "message": "登录成功",
-            }
-            json_str = json.dumps(dic)
+            responese = JsonResponse(dic)
 
-            return HttpResponse(json_str)
+            return responese
 
-        return HttpResponse("用户名或密码不正确")
+        responese = JsonResponse(dic)
+        responese.status_code = 404
+        return responese
 
 
 class UserInfoView(View):
-    @method_decorator(check_token)
-    def get(self, request, *args, **kwargs):
-        new_token = refresh_token(*args, **kwargs)
+    @method_decorator(check_access_token)
+    def get(self, request, payload, *args, **kwargs):
+        new_token = refresh_access_token(*args, **kwargs)
         payload = args[0]
         user = UserInfo.objects.filter(username=payload["name"])[0]
         dic = {
@@ -114,16 +125,17 @@ class UserInfoView(View):
 
 
 class IsVailTokenView(View):
-    @method_decorator(check_token)
-    def get(self, request, *args, **kwargs):
-        payload = args[0]
-        print("*args:", *args)
+    @method_decorator(check_access_token)
+    def get(self, request, payload, *args, **kwargs):
+
+        # 自动刷新access_token
+        new_acces_token = refresh_access_token(payload)
+        print("payload:", payload)
         username =payload["name"]
         dic = {
-            "action": "login",
+            "is_login": True,
             "username": username,
-            "success": True,
-            "token": "",
+            "new_access_token": new_acces_token,
             "message": "登录成功",
         }
 
@@ -134,16 +146,20 @@ class IsVailTokenView(View):
 
 # 关注,be_folowed为被关注的人
 class ContactView(View):
-    def post(self, follower, action, be_folowed,  *args, **kwargs):
+    @method_decorator(check_access_token)
+    def post(self, request, playload, username, action, be_followed,  *args, **kwargs):
+        user_from = UserInfo.objects.get(username=username)
+        user_to = UserInfo.objects.get(username=be_followed)
+        print(username)
         if action == "follow":
-            Contact.objects.update_or_create(user_from=follower, user_to=be_folowed, defaults={"is_active": True})
+            Contact.objects.update_or_create(user_from=user_from, user_to=user_to, defaults={"is_active": True})
             dic = {
                 "success": True,
                 "messages": "contact successfull"
             }
             return JsonResponse(dic)
         else:
-            Contact.objects.filter(user_from=follower, user_to=be_folowed).upadte(is_active=False)
+            Contact.objects.filter(user_from=user_from, user_to=user_to).upadte(is_active=False)
             dic = {
                 "success": True,
                 "messages": "cancel successfull"

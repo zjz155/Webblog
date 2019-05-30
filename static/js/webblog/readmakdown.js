@@ -1,7 +1,7 @@
-var token = window.localStorage.getItem("token");
+var access_token = window.localStorage.getItem("access_token");
 $(function() {
      $("#login").click(function(){
-         if (token){
+         if (access_token){
             window.localStorage.clear();
             $("#login").html("登录");
             $("#register").html("注册");
@@ -16,7 +16,7 @@ $(function() {
     });
 
     $("#markdown").click(function(){
-    if (token)
+    if (access_token)
         $(window).attr("location", "/compile_blog/");
     else
         alert("请先登录")

@@ -1,4 +1,5 @@
-var token=window.localStorage.getItem("token");
+var access_token=window.localStorage.getItem("access_token");
+var login_user = window.localStorage.getItem("username");
 
 function is_login(){
     $.ajax({
@@ -6,13 +7,13 @@ function is_login(){
          type: "get",
          dataType: "json",
          headers:{
-             "Authorization": "Bearer" + " " +  window.localStorage.getItem("token")
+             "Authorization": "Bearer" + " " +  access_token
          },
 
-         success: function (data, status, XHR) {
+         success: function (data, textstatus, XHR) {
 
              $("#login").html("退出").click(function () {
-                 if (token){
+                 if (access_token){
                     window.localStorage.clear();
                     $("#login").html("登录").click(function () {
                         $(window).attr("location", "/login/")
@@ -20,7 +21,7 @@ function is_login(){
                     $("#register").html("注册").click(function () {
                          $(window).attr("location", "/register/")
                     });
-                    // window.location.reload();
+                    window.location.reload();
                 }
                 else
                     $(window).attr("location", "/login/")
@@ -40,7 +41,7 @@ function is_login(){
              window.localStorage.clear();
 
              $("#login").click(function(){
-                if (token){
+                if (access_token){
                     window.localStorage.clear();
                     $("#login").html("登录");
                     $("#register").html("注册");
@@ -66,17 +67,16 @@ function is_login(){
 
     });
 
-
-    $("#markdown").click(function(){
+    $("#markdown").click(function() {
         if (token)
-          $(window).attr("location", "/compile_blog/");
+            $(window).attr("location", "/compile_blog/");
         else
-          alert("请先登录")
-
+            alert("请先登录")
     });
+
 }
 
-$(is_login());
 
-
-
+$(function (){
+    is_login();
+});

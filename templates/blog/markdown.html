@@ -15,6 +15,7 @@
     <script src="/static/plugins/bootstrap-4.1.3-dist/js/bootstrap.min.js"></script>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/plugins/editor.md/editormd.min.js"></script>
+    <script src="/static/js/webblog/common.js"></script>
     <meta charset="UTF-8">
     <title id="title">markdown编辑器</title>
 </head>
@@ -62,28 +63,6 @@
 </div>
 
 <script type="text/javascript">
-    $.ajax({
-             url: "/is_login/",
-             type: "get",
-             dataType: "json",
-             headers:{
-                 "Authorization": "Bearer" + " " +  window.localStorage.getItem("token")
-             },
-
-             success: function (data, status) {
-                 if (data.success) {
-                    console.log("login");
-                 }
-                 else{
-                      $(".container-fluid").css({display: "none"});
-                     $(window).attr("location", "/login/")}
-             },
-             error: function (XHR, textStatus, errorThrown) {
-                 alert("响应状态=" + textStatus );
-             },
-
-         });
-
     $(function() {
         var editor = editormd("editormd", {
             width  : "100%",
@@ -94,7 +73,7 @@
         $("#reported").click(function () {
              content = $("#content").html();
              headline = $("#headline").val();
-             console.log(headline)
+             console.log(headline);
              $.ajax({
                  url: "/compile_blog/",
                  type: "post",

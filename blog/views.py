@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 from blog.models import *
-from common.views import check_token, refresh_token
+from common.views import check_access_token, refresh_access_token
 from userinfo.models import UserInfo
 
 # 首页,展示所有文章,按间降序
@@ -21,6 +21,15 @@ class IndexView(View):
         user = UserInfo.objects.get(username=username)
 
         entry_list = Entry.objects.filter(user=user).order_by("-pub_date")
+        if not entry_list:
+            dic = {
+                "message": "not found entries",
+
+            }
+            response = JsonResponse(dic)
+            response.status_code = 404
+            return response
+
         paginator = Paginator(entry_list, 1)
         #　所有页的item的总和
         count = paginator.count
@@ -42,7 +51,6 @@ class IndexView(View):
                     "user": UserInfo.objects.get(username = obj.user.username).blog.name, "link": obj.get_absolute_url()} for obj in entries_object_list]
 
         dic = {
-
             "has_next": has_next,
             "has_previous": has_previous,
             "num_pages": num_pages,
@@ -60,10 +68,9 @@ class IndexView(View):
 
 # 开通博客功能
 class GrantBlogView(View):
-    @method_decorator(check_token)
-    def post(self, request, *args, **kwargs):
-        new_token = refresh_token(*args, **kwargs)
-        payload = args[0]
+    @method_decorator(check_access_token)
+    def post(self, request, payload, *args, **kwargs):
+        new_token = refresh_access_token(*args, **kwargs)
         user = UserInfo.objects.filter(username=payload["name"])[0]
 
         blog = Blog.objects.filter(user=user)
@@ -80,12 +87,11 @@ class CompileBlogEntry(View):
     def get(self, request, *args, **kwargs):
         return render(request, "blog/markdown.html")
 
-    @method_decorator(check_token)
-    def post(self, request, *args, **kwargs):
-        payload = args[0]
+    @method_decorator(check_access_token)
+    def post(self, request, payload, *args, **kwargs):
         user = UserInfo.objects.filter(username=payload["name"])
 
-        blog = Blog.objects.filter(user=user[0])
+        blog = Blog.objects.filter(blog=user[0])
         headline = request.POST["headline"]
         content = request.POST["content"]
         Entry.objects.update_or_create(user=user[0], headline=headline,  defaults={"body_text":content})

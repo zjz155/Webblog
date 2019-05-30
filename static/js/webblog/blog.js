@@ -2,51 +2,78 @@
 
 <!--请求一页数据-->
 function page_request(page, uname) {
-      $.get("/blog/" + uname + "/"  + page + "/", function (data, status) {
-         html = "";
-         for (i=0; i< data.entries.length; i++){
-            username = data.entries[i].user;
-            headline = data.entries[i].headline;
-            abstract = data.entries[i].abstract;
-            pub_date = data.entries[i].pub_date;
-            blog = data.entries[i].blog;
-            link = data.entries[i].link;
-            page_number = data.page_number;
-            num_pages = data.num_pages;
-            has_previous = data.has_previous;
-            has_next = data.has_next;
+      $.ajax({
+          url: "/blog/" + uname + "/"  + page + "/",
+          type: "get",
+          dataType: "json",
+          success: function (data, status, XHR) {
+                html = "";
+                for (i=0; i< data.entries.length; i++){
+                    username = data.entries[i].user;
+                    headline = data.entries[i].headline;
+                    abstract = data.entries[i].abstract;
+                    pub_date = data.entries[i].pub_date;
+                    blog = data.entries[i].blog;
+                    link = data.entries[i].link;
+                    page_number = data.page_number;
+                    num_pages = data.num_pages;
+                    has_previous = data.has_previous;
+                    has_next = data.has_next;
 
 
-            console.log(data);
-            $("#headline").html(headline);
-            $("#abstract").html(abstract);
+                    console.log(data);
+
+                    html += '<li class="list-group-item list-group-item-action rounded-0 ">';
+                    html += '<div>';
+                    html += '<a  href=' + link + ' ' + 'class="text-dark d-block">';
+                    html += '<h5>' + headline + '</h5>';
+                    html += '<p class="text-muted">' + abstract + '</p>';
+                    html += '</a>';
+                    html += '</div>';
+                    html += '<div>';
+                    html += '<span>' + username + '<span> | ';
+                    html += '<span>' + pub_date + '</span> ｜';
+                    html += '<span>阅读 0</span> |';
+                    html += '<span>评论 0</span>';
+                    html += '</div>';
+                    html += '</li>';
+
+
+                }
+                $("#content-list").html(html);
+                $("#username-siderbar").html(" " + uname);
+
+                <!--生成分页-->
+                paginator(uname, 3, page, has_previous, has_next)
+
+          },
+
+          error: function (XHR, textStatus, errorThrown) {
+                html = "";
+                html += '<li class="list-group-item list-group-item-action rounded-0">';
+                html += '<div>';
+                html += '<a  href=' + "#" + ' ' + 'class="text-dark d-block">';
+                html += '<h5>' + "你还没发布任何文章!" + '</h5>';
+                html += '<p class="text-muted">' + "欢迎成为本站的一员, 在这里分享您的思想与技艺! 如果觉的本站点不错，别忘了向您的朋友推荐！" + '</p>';
+                html += '</a>';
+                html += '</div>';
+                html += '<div>';
+                html += '<span>' + "admin" + '<span> | ';
+                html += '<span>' + '2019-5-30' + '</span> ｜';
+                html += '<span>阅读 0</span> |';
+                html += '<span>评论 0</span>';
+                html += '</div>';
+                html += '</li>';
+
+                $("#content-list").html(html);
+                $("#username-siderbar").html(" " + uname);
+                $("#pagination").remove();
 
 
 
-            html += '<li class="list-group-item list-group-item-action rounded-0 ">';
-            html += '<div>';
-            html += '<a  href=' + link + ' ' + 'class="text-dark d-block">';
-            html += '<h5>' + headline + '</h5>';
-            html += '<p class="text-muted">' + abstract + '</p>';
-            html += '</a>';
-            html += '</div>';
-            html += '<div>';
-            html += '<span>' + username + '<span> | ';
-            html += '<span>' + pub_date + '</span> ｜';
-            html += '<span>阅读 0</span> |';
-            html += '<span>评论 0</span>';
-            html += '</div>';
-            html += '</li>';
-
-
-         }
-        $("#content-list").html(html);
-
-         <!--生成分页-->
-         paginator(uname, 3, page, has_previous, has_next)
-
-     },"json");
-
+              console.log(textStatus);
+          }
+      });
 
 
 }
@@ -108,9 +135,46 @@ function paginator(uname, num, page, has_previous, has_next){
     });
  }
 
+function contact(username, action, be_followed){
+    $.ajax({
+        url: "/" + username + "/" + action + "/" + be_followed +"/",
+        type: "post",
+        dataType: "json",
+        headers:{
+             "Authorization": "Bearer" + " " +  window.localStorage.getItem("access_token")
+         },
 
-path = window.location.pathname;
-console.log(path);
-path_names = window.location.pathname.split("/");
-$(page_request(page=1, uname=path_names[2]));
-console.log("blog - token:" + token);
+        success: function (data, textStatus, XHR) {
+            $("#contact").html("已关注");
+        }
+    });
+
+}
+
+$("#contact").click(function () {
+    text = $(this).html();
+    if(text==="关注"){
+        var path_names = window.location.pathname.split("/");
+        contact(login_user, "follow", path_names[2]);
+
+    }
+
+});
+
+$(function () {
+    var path = window.location.pathname;
+    // console.log(path);
+    var path_names = window.location.pathname.split("/");
+    page_request(page=1, uname=path_names[2]);
+
+    $("#contact").click(function () {
+        text = $(this).html();
+        if (text === "关注") {
+            var path_names = window.location.pathname.split("/");
+            contact(userame=login_user, action="follow", be_followed=path_names[2]);
+            $("#contact").html("已关注")
+        }
+    });
+});
+console.log("blog - token:" + access_token);
+

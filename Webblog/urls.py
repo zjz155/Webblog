@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path, include
+from django.views.generic import RedirectView
 
 import blog
 from blog.views import GrantBlogView, CompileBlogEntry, TestView, IndexView
@@ -22,11 +23,13 @@ from userinfo.views import RegisterView, LoginView, UserInfoView, IsVailTokenVie
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
 ]
 
 urlpatterns += [
-    path("",IndexView.as_view()),
-    re_path(r"index/(?P<data>\w+)/$", IndexView.as_view()),
+
+    path("", RedirectView.as_view(url="/blog/jz_zhou/list")),
+    re_path(r"blog/(?P<username>\w+(-*)\w+)/(?P<data>\w+)/$", IndexView.as_view()),
     # path("index/<int:page>/", index),
     path("login/", LoginView.as_view()),
     path("is_login/", IsVailTokenView.as_view()),
@@ -36,6 +39,6 @@ urlpatterns += [
     path("compile_blog/", CompileBlogEntry.as_view()),
     # path("profile/", Profile),
     re_path(r'^test/(?P<username>\w+)/$', TestView.as_view()),
-    re_path(r"(?P<username>\w+)/", include("blog.urls"))
+    re_path(r"(?P<username>\w+(-*)\w+)/", include("blog.urls"))
 
 ]
