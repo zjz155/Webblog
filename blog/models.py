@@ -10,7 +10,7 @@ class Blog(models.Model):
     # 个性答名
     tagline = models.TextField(null=True)
 
-    blog = models.OneToOneField(UserInfo, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(UserInfo, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -39,7 +39,7 @@ class Entry(models.Model):
     rating = models.IntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
 
-    comments = models.ManyToManyField(Blog, through="Comment", through_fields=("entry", "blog"))
+    blog = models.ManyToManyField(Blog, through="Comment", through_fields=("entry", "blog"))
 
     def __str__(self):
         return self.headline
@@ -55,15 +55,15 @@ class Entry(models.Model):
 
 
 class Comment(models.Model):
-    entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    entry = models.ForeignKey(Entry, related_name="entry_comment_set", on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog,related_name="blog_comment_set", on_delete=models.CASCADE)
 
     body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
 
-    replys = models.ManyToManyField(UserInfo, through="Reply")
+    replys = models.ManyToManyField(Blog, through="Reply", through_fields=("comment", "reply_from"))
     class Meta:
         ordering = ("created",)
         verbose_name="评论"
@@ -74,8 +74,9 @@ class Comment(models.Model):
 
 class Reply(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
+    reply_from = models.ForeignKey(Blog, related_name="reply_from_set", on_delete=models.CASCADE)
 
+    reply_to = models.ForeignKey(Blog, related_name="reply_to_set", on_delete=models.CASCADE)
     body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -88,7 +89,7 @@ class Reply(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return "{} 回复了 {}".format(self.user.username, self.comment.entry.user.username)
+        return "{} 回复了 {}".format(self.reply_from.name, self.reply_to.name)
 
 
 class Tag(models.Model):

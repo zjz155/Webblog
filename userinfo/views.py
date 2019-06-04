@@ -4,7 +4,7 @@ import logging
 
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from django.utils.decorators import method_decorator
@@ -15,7 +15,7 @@ from common.views import *
 from userinfo.models import UserInfo, Contact
 
 # token有效时间
-timedelta = datetime.timedelta(seconds=600).total_seconds()
+timedelta = datetime.timedelta(seconds=60).total_seconds()
 
 # 注册
 class RegisterView(View):
@@ -76,7 +76,7 @@ class LoginView(View):
             "is_login": False,
             "username": "anonymous",
             "access_token": "",
-            "message": "您的收入有误",
+            "message": "您的输入有误",
         }
 
         username = request.POST.get("username")
@@ -109,19 +109,18 @@ class LoginView(View):
         return responese
 
 
-class UserInfoView(View):
-    @method_decorator(check_access_token)
-    def get(self, request, payload, *args, **kwargs):
-        new_token = refresh_access_token(*args, **kwargs)
-        payload = args[0]
-        user = UserInfo.objects.filter(username=payload["name"])[0]
-        dic = {
-            "data": {"name": user.username, "sex": user.sex},
-            "new_token": new_token,
-        }
-        json_str = json.dumps(dic)
-
-        return HttpResponse(json_str)
+# class UserInfoView(View):
+#     @method_decorator(check_access_token)
+#     def get(self, request, payload, *args, **kwargs):
+#         new_token = refresh_access_token(*args, **kwargs)
+#         user = UserInfo.objects.filter(username=payload["name"])[0]
+#         dic = {
+#             "data": {"name": user.username, "sex": user.sex},
+#             "new_token": new_token,
+#         }
+#         json_str = json.dumps(dic)
+#
+#         return HttpResponse(json_str)
 
 
 class IsVailTokenView(View):
@@ -148,21 +147,60 @@ class IsVailTokenView(View):
 class ContactView(View):
     @method_decorator(check_access_token)
     def post(self, request, playload, username, action, be_followed,  *args, **kwargs):
-        user_from = UserInfo.objects.get(username=username)
-        user_to = UserInfo.objects.get(username=be_followed)
-        print(username)
-        if action == "follow":
+        if username == be_followed:
+                dic = {
+                    "success": False,
+                    "display": "关注",
+                    "messages": "you can't contact yourself",
+                }
+                response = JsonResponse(dic)
+                response.status_code = 404
+                return JsonResponse(dic)
+
+        user_from = get_object_or_404(UserInfo, username=username)
+        user_to = get_object_or_404(UserInfo, username=be_followed)
+        contact = Contact.objects.filter(user_from=user_from, user_to=user_to, is_active=True)
+
+        # print(username)
+        if action == "is_contacted":
+            if contact:
+                dic = {
+                    "success": True,
+                    "display": "已关注",
+                    "messages": "have been contacted",
+                }
+                return JsonResponse(dic)
+            else:
+                dic = {
+                    "success": True,
+                    "display": "关注",
+                    "messages": "is not contacted",
+                }
+                return JsonResponse(dic)
+        elif action == "follow":
             Contact.objects.update_or_create(user_from=user_from, user_to=user_to, defaults={"is_active": True})
             dic = {
                 "success": True,
-                "messages": "contact successfull"
+                "display": "已关注",
+                "messages": "contact successfull",
             }
             return JsonResponse(dic)
-        else:
-            Contact.objects.filter(user_from=user_from, user_to=user_to).upadte(is_active=False)
+        elif action == "cancel":
+            Contact.objects.filter(user_from=user_from, user_to=user_to).update(is_active=False)
             dic = {
                 "success": True,
-                "messages": "cancel successfull"
+                "display": "关注",
+                "messages": "cancel successfull",
             }
 
             return JsonResponse(dic)
+
+        dic = {
+            "success": False,
+            "display": "关注",
+            "messages": "can't understand you meaning",
+        }
+
+        response = JsonResponse(dic)
+        response.status_code = 404
+        return response

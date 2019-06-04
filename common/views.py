@@ -76,13 +76,13 @@ def refresh_access_token(payload):
     print("old_iat:", datetime.datetime.fromtimestamp(iat))
     if online_time > timedelta / 2:
         user = UserInfo.objects.filter(username=username)
-        iat_ = user[0].iat.timestamp()
+        iat_ = user[0].last_login.timestamp()
         # 如果没有用新的token,返回None.
         if iat != iat_:
             return None
 
         user[0].save()
-        iat = user[0].iat.timestamp()
+        iat = user[0].last_login.timestamp()
         print("new_iat:", datetime.datetime.fromtimestamp(iat))
         header_payload = dinfine_header_payload(username, timedelta, iat)
         return create_access_token(**header_payload)

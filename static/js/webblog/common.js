@@ -11,6 +11,9 @@ function is_login(){
          },
 
          success: function (data, textstatus, XHR) {
+             new_access_token = data.new_access_token;
+             if (new_access_token)
+                 window.localStorage.setItem("access_token", new_access_token);
 
              $("#login").html("退出").click(function () {
                  if (access_token){
@@ -21,7 +24,7 @@ function is_login(){
                     $("#register").html("注册").click(function () {
                          $(window).attr("location", "/register/")
                     });
-                    window.location.reload();
+                    // window.location.reload();
                 }
                 else
                     $(window).attr("location", "/login/")
@@ -38,8 +41,6 @@ function is_login(){
          },
          error: function (XHR, textStatus, errorThrown) {
 
-             window.localStorage.clear();
-
              $("#login").click(function(){
                 if (access_token){
                     window.localStorage.clear();
@@ -52,6 +53,8 @@ function is_login(){
                     $(window).attr("location", "/login/")
 
              });
+
+             window.localStorage.clear();
 
              $("#register").click(function(){
                  if ($("#register").html() ==="注册"){
@@ -68,7 +71,7 @@ function is_login(){
     });
 
     $("#markdown").click(function() {
-        if (token)
+        if (access_token)
             $(window).attr("location", "/compile_blog/");
         else
             alert("请先登录")

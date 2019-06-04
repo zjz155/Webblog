@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.core.cache import caches
 from django.core.paginator import Paginator
+from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
@@ -18,9 +19,11 @@ class IndexView(View):
         if data == "list":
             return render(request, "blog/blog.html")
 
-        user = UserInfo.objects.get(username=username)
+        # user = UserInfo.objects.get(username=username)
+        user = get_object_or_404(UserInfo, username=username)
 
         entry_list = Entry.objects.filter(user=user).order_by("-pub_date")
+
         if not entry_list:
             dic = {
                 "message": "not found entries",
@@ -30,7 +33,7 @@ class IndexView(View):
             response.status_code = 404
             return response
 
-        paginator = Paginator(entry_list, 1)
+        paginator = Paginator(entry_list, 5)
         #　所有页的item的总和
         count = paginator.count
         # 一共有几页
@@ -103,7 +106,7 @@ class CompileBlogEntry(View):
 # 文章详情
 class DetialEntryView(View):
     def get(self, request, username, article_id, *args, **kwargs):
-        return render(request, "blog/read_markdown.html")
+        return render(request, "blog/entry_detail.html")
 
 
 class ReadBlogEntry(View):
@@ -126,24 +129,27 @@ class ReadBlogEntry(View):
 # 评论
 class CommentView(View):
     def get(self, request, article_id, page=1, *args, **kwargs):
-        comment_list = Comment.objects.all().order_by("-created")
-        paginator = Paginator(comment_list, 5)
-        page = paginator.get_page(page)
-        has_next = page.has_next()
-        obj_list = page.object_list
+        comment_list = Comment.objects.filter(entry=article_id).order_by("-created")
+        comment_paginator = Paginator(comment_list, 5)
+        comment_page = comment_paginator.get_page(page)
+        comment_has_next = comment_page.has_next()
+        comment_obj_list = comment_page.object_list
 
-        comment = [{"entry_id": obj.entry.id, "username": obj.user.username, "comment": obj.body } for obj in obj_list]
+        comment = [{"comment_info": {"comment_id": obj.id, "comment_username": obj.blog.name, "comment_content": obj.body, "comment_date": obj.created.strftime("%Y-%m-%d %H-%M-%S")},
+                    "entry_info": {"entry_id": obj.entry.id, "entry_headline": obj.entry.headline, "entry_author": obj.entry.user.blog.name,},
+                    "n_replys": obj.replys.count()} for obj in comment_obj_list]
         dic = {
-            "has_next": has_next,
-            "comment": comment,
+            "has_next": comment_has_next,
+            "comment_page": comment,
         }
 
         return JsonResponse(dic)
 
-    def post(self, request, article_id, blog_id, *args, **kwargs):
+    def post(self, request, username, article_id, *args, **kwargs):
+        blog = Blog.objects.get(user__username=username)
         comment = request.POST.get("comment", "")
         if comment:
-            Comment.objects.create(entry=article_id, blog=blog_id)
+            Comment.objects.create(entry_id=article_id, blog=blog,  body=comment)
             dic = {
                 "success": True,
                 "messsage": "comment successfull"
@@ -153,14 +159,14 @@ class CommentView(View):
 
 # 回复
 class ReplyView(View):
-    def get(self, request, article_id, page=1, *args, **kwargs):
-        reply_list = Reply.objects.all().order_by("-created")
-        paginator = Paginator(reply_list, 5)
+    def get(self, request, comment_id, page, *args, **kwargs):
+        reply_list = Reply.objects.filter(comment=comment_id).order_by("-created")
+        paginator = Paginator(reply_list, 20)
         page = paginator.get_page(page)
         has_next = page.has_next()
         obj_list = page.object_list
 
-        reply = [{"comment_id": obj.comment.id, "username": obj.user.username, "reply": obj.body} for obj in obj_list]
+        reply = [{"comment_id": obj.comment.id, "reply_from": obj.reply_from.name, "reply_to": obj.reply_to.name, "reply_content": obj.body, "reply_time": obj.created } for obj in obj_list]
         dic = {
             "has_next": has_next,
             "reply": reply,
@@ -168,16 +174,21 @@ class ReplyView(View):
 
         return JsonResponse(dic)
 
-    def Post(self, request, comment_id, reply, *args, **kwargs):
-        payload = args[0]
-        username = payload["name"]
+    def post(self, request, username, article_id, comment_id, *args, **kwargs):
+        reply = "回复测试"
         user = UserInfo.objects.get(username=username)
-        reply = request.POST.get("reply", "")
-        Reply.objects.create(comment=comment_id, user=user, body=reply)
+        reply_from = Blog.objects.get(user=user)
+        commet = Comment.objects.get(id=comment_id)
+        reply_to = Blog.objects.get(name=commet.blog.name)
+
+        # reply = request.POST.get("reply", "")
+        Reply.objects.create(comment=commet, reply_from=reply_from, reply_to=reply_to, body=reply)
 
         dic = {
             "success": True,
-            "message": "reply successfully"
+            "reply_from": reply_from.name,
+            "reply_to": reply_to.name,
+            "message": "reply successfully",
         }
 
         return JsonResponse(dic)
@@ -205,3 +216,30 @@ class TestView(View):
     def put(self, request, *args, **kwargs):
 
         return JsonResponse({"method": "PUT"})
+
+class UserInfoView(View):
+    def get(self, request, username, *args, **kwargs):
+        user_obj = get_object_or_404(UserInfo, username = username)
+        name = user_obj.username
+        sex = user_obj.sex
+        date_join = user_obj.date_join
+        email = user_obj.email
+
+        nums_entries = user_obj.entry_set.all().count()
+        nums_comments = user_obj.entry_set.all().aggregate(Sum("n_comments"))["n_comments__sum"]
+        nums_contacts = user_obj.followers.count()
+
+        dic = {
+
+            "username": name,
+            "sex": sex,
+            "date_join": date_join,
+            "email": email,
+            "nums_entries": nums_entries,
+            "nums_cometns": nums_comments,
+            "nums_contacts": nums_contacts,
+
+        }
+
+        return JsonResponse(dic)
+

@@ -43,9 +43,7 @@
         </style>
     </head>
     <body>
-
-        <div id="layout">
-            <header>
+    <header>
               <!-- Fixed navbar -->
               <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                 <a class="navbar-brand" href="#">个人博客客</a>
@@ -81,13 +79,19 @@
 
 
 
+
+
             <div id="test-editormd-view">
                <textarea style="display:none;" name="test-editormd-markdown-doc"> {{ markdown }}</textarea>
+
             </div>
-            <div id="test-editormd-view2">
-                <textarea id="append-test" style="display:none;">
 
-
+{#            <div id="test-editormd-view2">#}
+{##}
+{#                <textarea id="append-test" style="display:none;">#}
+{##}
+{##}
+{##}
 {####科学公式 TeX(KaTeX)#}
 {##}
 {#$$E=mc^2$$#}
@@ -100,14 +104,64 @@
 {##}
 {#$$X^2 > Y$$#}
 {##}
+{##}
+{#                </textarea>#}
+{#            </div>#}
 
-                </textarea>
-            </div>
-        </div>
+
+
+
+
+
+
         <!-- <script src="js/zepto.min.js"></script>
 		<script>
 			var jQuery = Zepto;  // 为了避免修改flowChart.js和sequence-diagram.js的源码，所以使用Zepto.js时想支持flowChart/sequenceDiagram就得加上这一句
 		</script> -->
 
 
+<div class="border-0" style="width: 90%; margin: 0px auto; padding: 0 20px;">
+    <span>用户评论区:</span>
+    <hr/>
+    <form action="/comment/1/1/" method="post" id="comment-form">
+        <p>
+            <textarea class="form-control" placeholder="想要对作者说点什么..." name="comment"></textarea>
+        </p>
+        <p>
+            <input type="submit" class="btn btn-primary" value="提交"/>
+        </p>
+
+    </form>
+
+    <div id="comment_list">
+        <p>
+            <ul class="list-group">
+              <li class="list-group-item">
+                  <span>
+                      <img alt="头像" src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" style="width: 40px;height: 40px">
+                      <span id="username-comment">zjz5 of blog:</span>
+                      <span id="content-comment">写的不错...</span>
+                      <span id="content-comment">(2019-04-15)</span>
+                      <span id="content-comment">回复(0)</span>
+                  </span>
+              </li>
+
+              <li class="list-group-item ">
+                   <img alt="头像" src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" style="width: 40px;height: 40px">
+                    <span id="username-comment">jun of blog <span>回复: zjz155 of blog</span>:</span>
+                    <span id="content-comment">共同进步...</span>
+                    <span id="content-comment">(2019-04-15)</span>
+              </li>
+              <li class="list-group-item">Third item</li>
+            </ul>
+        </p>
+        <p>
+            <ul class="list-group">
+              <li class="list-group-item">Active item</li>
+              <li class="list-group-item ">Second item</li>
+              <li class="list-group-item">Third item</li>
+            </ul>
+        </p>
+    </div>
+</div>
 </body>

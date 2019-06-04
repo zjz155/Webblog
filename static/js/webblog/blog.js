@@ -1,6 +1,6 @@
 // var token;
 
-<!--请求一页数据-->
+// 请求一(某)页数据 /blog/uname/1
 function page_request(page, uname) {
       $.ajax({
           url: "/blog/" + uname + "/"  + page + "/",
@@ -43,7 +43,7 @@ function page_request(page, uname) {
                 $("#content-list").html(html);
                 $("#username-siderbar").html(" " + uname);
 
-                <!--生成分页-->
+                // 生成分页
                 paginator(uname, 3, page, has_previous, has_next)
 
           },
@@ -79,7 +79,7 @@ function page_request(page, uname) {
 }
 
 
-<!--实现翻页-->
+// 实现翻页
 function paginator(uname, num, page, has_previous, has_next){
      if(num_pages > num)
         i = num;
@@ -95,7 +95,7 @@ function paginator(uname, num, page, has_previous, has_next){
     start = parseInt(page/num) + 1;
     console.log("has_next:", has_next);
 
-    <!--生成页码-->
+    // 生成页码
     for(j=start; j<=i+start && j<=num_pages; j++){
         if(parseInt(page) === j)
             html += '<li class="page-item active"><a class="page-link" href="#">' + j + '</a></li>';
@@ -112,7 +112,7 @@ function paginator(uname, num, page, has_previous, has_next){
     $("#pagination").html(html);
 
 
-    <!--为页码绑定事件-->
+    // 为页码绑定事件
     $('a', "ul#pagination").click(function () {
         <!--获取左右翻页的id-->
         p = $(this).attr("id");
@@ -135,7 +135,14 @@ function paginator(uname, num, page, has_previous, has_next){
     });
  }
 
+
+// 关注
 function contact(username, action, be_followed){
+    if (username === be_followed){
+        $("#contact").hide();
+        return
+    }
+
     $.ajax({
         url: "/" + username + "/" + action + "/" + be_followed +"/",
         type: "post",
@@ -145,36 +152,62 @@ function contact(username, action, be_followed){
          },
 
         success: function (data, textStatus, XHR) {
-            $("#contact").html("已关注");
+            text = data.display;
+            if(text === "已关注"){
+                $("#contact").html(text).removeClass("btn-outline-danger").addClass("btn-outline-secondary").hover(
+                    function () {
+                        $(this).html("取消关注").removeClass("btn-outline-secondary").addClass("btn-outline-danger");
+
+                    },
+                    function () {
+                        $(this).html("已关注").removeClass("btn-outline-danger").addClass("btn-outline-secondary");
+
+                    }
+                );
+            }else if (text === "关注") {
+                $("#contact").html(text).addClass("btn-outline-danger").removeClass("btn-outline-secondary").hover(
+                    function () {
+                        $(this).html("关注").removeClass("btn-outline-secondary").addClass("btn-outline-danger");
+
+                    },
+                )
+
+            }
+
+
+
+
         }
     });
 
+
+
 }
 
-$("#contact").click(function () {
-    text = $(this).html();
-    if(text==="关注"){
-        var path_names = window.location.pathname.split("/");
-        contact(login_user, "follow", path_names[2]);
 
-    }
-
-});
 
 $(function () {
     var path = window.location.pathname;
     // console.log(path);
     var path_names = window.location.pathname.split("/");
     page_request(page=1, uname=path_names[2]);
+    contact(login_user, "is_contacted", path_names[2]);
+
+
+
 
     $("#contact").click(function () {
         text = $(this).html();
         if (text === "关注") {
-            var path_names = window.location.pathname.split("/");
+            // var path_names = window.location.pathname.split("/");
             contact(userame=login_user, action="follow", be_followed=path_names[2]);
-            $("#contact").html("已关注")
+            // $("#contact").html("已关注")
         }
+        else if (text === "取消关注")
+            contact(userame=login_user, action="cancel", be_followed=path_names[2]);
+
     });
 });
+
 console.log("blog - token:" + access_token);
 
