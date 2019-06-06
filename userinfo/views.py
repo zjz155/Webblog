@@ -15,7 +15,7 @@ from common.views import *
 from userinfo.models import UserInfo, Contact
 
 # token有效时间
-timedelta = datetime.timedelta(seconds=60).total_seconds()
+timedelta = datetime.timedelta(seconds=600).total_seconds()
 
 # 注册
 class RegisterView(View):
@@ -96,7 +96,7 @@ class LoginView(View):
             user[0].save()
             last_login = user[0].last_login.timestamp()
 
-            header_payload = dinfine_header_payload(username, timedelta, last_login)
+            header_payload = dinfine_header_payload(user[0].id,username, timedelta, last_login)
             access_token = create_access_token(**header_payload)
             dic.update({"is_login": True, "username": username, "access_token": access_token, "message": "登录成功"})
 

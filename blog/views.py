@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+
 
 from django.core.cache import caches
 from django.core.paginator import Paginator
@@ -10,7 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 from blog.models import *
-from common.views import check_access_token, refresh_access_token
+from common.views import check_access_token, htmlencode
 from userinfo.models import UserInfo
 
 # 首页,展示所有文章,按间降序
@@ -73,14 +73,13 @@ class IndexView(View):
 class GrantBlogView(View):
     @method_decorator(check_access_token)
     def post(self, request, payload, *args, **kwargs):
-        new_token = refresh_access_token(*args, **kwargs)
-        user = UserInfo.objects.filter(username=payload["name"])[0]
 
-        blog = Blog.objects.filter(user=user)
+
+        blog = Blog.objects.filter(user_id=payload["id"])
         if blog:
             return HttpResponse("博客已存在")
 
-        Blog.objects.create(user=user, name=user.username + " of blog")
+        Blog.objects.create(user_id=payload["id"], name=payload["name"]+ " of blog")
 
         return HttpResponse("成功开通博客")
 
@@ -92,12 +91,9 @@ class CompileBlogEntry(View):
 
     @method_decorator(check_access_token)
     def post(self, request, payload, *args, **kwargs):
-        user = UserInfo.objects.filter(username=payload["name"])
-
-        blog = Blog.objects.filter(blog=user[0])
         headline = request.POST["headline"]
         content = request.POST["content"]
-        Entry.objects.update_or_create(user=user[0], headline=headline,  defaults={"body_text":content})
+        Entry.objects.update_or_create(user_id=payload["id"], headline=headline,  defaults={"body_text":content})
         print(headline)
         print(content)
 
@@ -145,9 +141,18 @@ class CommentView(View):
 
         return JsonResponse(dic)
 
-    def post(self, request, username, article_id, *args, **kwargs):
+    @method_decorator(check_access_token)
+    def post(self, request, payload, username, article_id, *args, **kwargs):
         blog = Blog.objects.get(user__username=username)
-        comment = request.POST.get("comment", "")
+        print(args, kwargs)
+        comment = htmlencode(request.POST["comment-content"])
+
+#         comment = '''&lt;a&gt;xss&lt;/a&gt;
+# &lt;scrtipt&gt;
+# alert("xss")
+# &lt;/scrtipt&gt;'''
+
+        print(comment)
         if comment:
             Comment.objects.create(entry_id=article_id, blog=blog,  body=comment)
             dic = {
@@ -156,6 +161,15 @@ class CommentView(View):
             }
 
             return JsonResponse(dic)
+
+        dic = {
+            "success": False,
+            "message": "comment fail, comment cant't be empty"
+        }
+
+        response = JsonResponse(dic)
+        response.status_code = 404
+        return response
 
 # 回复
 class ReplyView(View):
@@ -230,7 +244,6 @@ class UserInfoView(View):
         nums_contacts = user_obj.followers.count()
 
         dic = {
-
             "username": name,
             "sex": sex,
             "date_join": date_join,

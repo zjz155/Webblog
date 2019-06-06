@@ -2,17 +2,17 @@ import base64
 import datetime
 import hmac
 import json
+import re
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
 from Webblog import settings
-
 from userinfo.models import UserInfo
 
 # 定义JWT的header和payload
-def dinfine_header_payload(username, timedelta, iat, admin=False, alg="sha256"):
+def dinfine_header_payload(id, username, timedelta, iat, admin=False, alg="sha256"):
     exp = iat + timedelta
     header = {
         "alg": alg,
@@ -25,6 +25,7 @@ def dinfine_header_payload(username, timedelta, iat, admin=False, alg="sha256"):
         "iat": iat,
         "name": username,
         "admin": admin,
+        "id": id
     }
 
     return {"header": header, "payload": payload}
@@ -152,3 +153,8 @@ def check_access_token(func):
         return func(request, payload, *args, **kwargs)
 
     return wrapper
+
+def htmlencode(strings):
+    strings = re.sub(r"<", "&lt;", strings)
+    strings = re.sub(r">", "&gt;", strings)
+    return strings

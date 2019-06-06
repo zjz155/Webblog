@@ -48,14 +48,46 @@ $(function() {
 // 发表评论
 function comment() {
     // re_path(r"comment/(?P<article_id>\w+)/(?P<blog_id>\w+)/$", CommentView.as_view()),
-    $("#comment-form").attr("href",comment_url )
+    $("#comment-btn").click(function () {
 
+        $.ajax({
+            url: comment_url,
+            type: "post",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer" + " " + window.localStorage.getItem("access_token")
+            },
+            data: $("#comment-form").serialize(),
+
+            success: function (data, textStatus, XHR) {
+               comment_list(article_id, 1);
+               $("input[type=reset]").trigger("click");
+                alert("评论成功！")
+
+            },
+
+            error: function (XHR, textStatus, errorThrown) {
+                alert("发布失败, 请重试");
+                nav_login_btn();
+
+            }
+
+        });
+    });
+
+
+function reply() {
+
+
+}
 }
 
 
 
 // 请求评论列表
 function comment_list(article_id, page) {
+     // 显示评论列表
+    $("#comment_list").empty();
     $.ajax({
         url: "/comment/list/" + article_id  + "/" + page,
         type: "get",
@@ -85,8 +117,8 @@ function comment_list(article_id, page) {
                 html +='<span id="username-comment" style="margin-right: 10px; ">' +  comment_username + ":" +  '</span>';
                 html += '<span id="content-comment" style="margin-right: 10px; ">' +  comment_content + '</span>';
                 html += '<span id="content-comment" style="margin-right: 10px; ">' + "(" +  comment_date + ")" + '</span>';
-                html += '<span id="reply_comment" style="margin-right: 10px; ">' + '<a href=#comment' + comment_id + ' data-toggle="collapse">' + "查看回复" + '</a>' + "(" + replys + ")" +'</span>';
-                html += '<span id="reply_comment" style="margin-right: 10px; ">' + '<a href=#reply' + comment_id + ' data-toggle="collapse">' + "回复" + '</a>' +'</span>';
+                html += '<span style="margin-right: 10px; ">' + '<a href=#comment' + comment_id + ' data-toggle="collapse" class=' + comment_id + '>' + "查看回复" + '</a>' + "(" + replys + ")" +'</span>';
+                html += '<span style="margin-right: 10px; ">' + '<a href=#reply' + comment_id + ' data-toggle="collapse" class='+ comment_id + '>' + "回复" + '</a>' +'</span>';
                 html +='</span>';
                 html +='</li>';
                 html +='</ul>';
@@ -95,10 +127,32 @@ function comment_list(article_id, page) {
 
             }
 
+            // 显示评论列表
+            $("#comment_list").append(html);
 
-            $("#comment_list").html(html);
+        },
+        complete: function (XHR, textStatus) {
 
-            reply_list("/reply/jz_zhou/2/1/")
+            $("a").on("click", function (){
+                cls = $(this).attr("class");
+                text = $(this).html();
+                if (text === "回复"){
+                    console.log("cls:" + cls);
+                }
+                else if (text === "查看回复"){
+                    console.log("cls:"+ cls);
+                    url = "/reply_list/" + cls + "/1/";
+                    // 获取回复内容
+                    reply_list(url);
+
+                }
+
+
+            });
+
+
+
+
 
         }
     });
@@ -119,6 +173,7 @@ function reply_list(url) {
             reply_content= data.reply[0].reply_content;
             reply_time = data.reply[0].reply_time;
             comment_id = data.reply[0].comment_id;
+            replys = data.reply[0].n_replys;
 
             html = '<div id=comment' + comment_id + ' class=collapse>';
             for(i=0; i < n; i++){
@@ -138,10 +193,6 @@ function reply_list(url) {
             $('#' +  comment_id ).append(html);
 
 
-
-
-
-
         }
 
 
@@ -150,7 +201,10 @@ function reply_list(url) {
 }
 
 $(function () {
-     $("#comment-form").attr("action",comment_url )
+     // $("#comment-form").attr("action",comment_url );
+
     comment_list(article_id,1);
+
+    comment()
 
 });

@@ -1,6 +1,17 @@
 var access_token=window.localStorage.getItem("access_token");
 var login_user = window.localStorage.getItem("username");
 
+
+function nav_login_btn(){
+    $("#login").html("登录").click(function () {
+        $(window).attr("location", "/login/")
+    });
+
+    $("#register").html("注册").click(function () {
+         $(window).attr("location", "/register/")
+    });
+}
+
 function is_login(){
     $.ajax({
          url: "/is_login/",
@@ -18,12 +29,7 @@ function is_login(){
              $("#login").html("退出").click(function () {
                  if (access_token){
                     window.localStorage.clear();
-                    $("#login").html("登录").click(function () {
-                        $(window).attr("location", "/login/")
-                    });
-                    $("#register").html("注册").click(function () {
-                         $(window).attr("location", "/register/")
-                    });
+                    nav_login_btn();
                     // window.location.reload();
                 }
                 else
@@ -34,48 +40,29 @@ function is_login(){
 
 
              $("#register").html(data.username).click(function () {
-                 $(window).attr("location", "/blog/" + data.username + "/" + "list")
+                 $(window).attr("location", "/blog/" + data.username + "/" + "list" + "/")
              });
 
 
          },
          error: function (XHR, textStatus, errorThrown) {
-
-             $("#login").click(function(){
-                if (access_token){
-                    window.localStorage.clear();
-                    $("#login").html("登录");
-                    $("#register").html("注册");
-                    <!--刷新当前页-->
-                    window.location.reload();
-                }
-                else
-                    $(window).attr("location", "/login/")
-
-             });
-
-             window.localStorage.clear();
-
-             $("#register").click(function(){
-                 if ($("#register").html() ==="注册"){
-                      $(location).attr("href", "/register/")
-
-                 }
-
-
-             });
+              window.localStorage.clear();
+              nav_login_btn();
 
          },
+        complete: function (XHR, textStatus) {
+            $("#markdown").click(function() {
+            if (access_token)
+                $(window).attr("location", "/compile_blog/");
+            else
+                alert("请先登录")
+            });
+        }
 
 
     });
 
-    $("#markdown").click(function() {
-        if (access_token)
-            $(window).attr("location", "/compile_blog/");
-        else
-            alert("请先登录")
-    });
+
 
 }
 

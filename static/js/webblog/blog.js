@@ -193,9 +193,6 @@ $(function () {
     page_request(page=1, uname=path_names[2]);
     contact(login_user, "is_contacted", path_names[2]);
 
-
-
-
     $("#contact").click(function () {
         text = $(this).html();
         if (text === "关注") {
