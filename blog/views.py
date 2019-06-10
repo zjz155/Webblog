@@ -3,7 +3,7 @@ import json
 
 from django.core.cache import caches
 from django.core.paginator import Paginator
-from django.db.models import Sum
+from django.db.models import Sum, F
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
@@ -108,10 +108,11 @@ class DetialEntryView(View):
 class ReadBlogEntry(View):
     def get(self, request, username, article_id, *args, **kwargs):
         entry_user = get_object_or_404(UserInfo, username=username)
-        entry = get_object_or_404(Entry, id=article_id)
-        headline = entry.headline
-        content = entry.body_text
-        entry.rating += 1
+        entry_query = Entry.objects.filter(id=article_id)
+        entry_query.update(rating=F("rating") + 1)
+        headline = entry_query[0].headline
+        content = entry_query[0].body_text
+
         dic = {
             "entry_user_id": entry_user.id,
             "article_id": article_id,
@@ -155,6 +156,8 @@ class CommentView(View):
         print(comment)
         if comment:
             Comment.objects.create(entry_id=article_id, blog=blog,  body=comment)
+            Entry.objects.filter(id = article_id).update(n_comments=F('n_comments') + 1)
+
             dic = {
                 "success": True,
                 "messsage": "comment successfull"
@@ -188,10 +191,9 @@ class ReplyView(View):
 
         return JsonResponse(dic)
 
-
-
-    def post(self, request, username, article_id, comment_id, *args, **kwargs):
-        reply = "回复测试"
+    @method_decorator(check_access_token)
+    def post(self, request, payload, username, comment_id, *args, **kwargs):
+        reply = htmlencode(request.POST["reply-content"])
         user = UserInfo.objects.get(username=username)
         reply_from = Blog.objects.get(user=user)
         commet = Comment.objects.get(id=comment_id)

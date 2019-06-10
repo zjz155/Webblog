@@ -3,6 +3,7 @@ import json
 import logging
 
 from django.contrib.auth.hashers import make_password, check_password
+from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -10,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
 
-from blog.models import Blog
+from blog.models import Blog, Comment, Entry
 from common.views import *
 from userinfo.models import UserInfo, Contact
 
@@ -109,18 +110,29 @@ class LoginView(View):
         return responese
 
 
-# class UserInfoView(View):
-#     @method_decorator(check_access_token)
-#     def get(self, request, payload, *args, **kwargs):
-#         new_token = refresh_access_token(*args, **kwargs)
-#         user = UserInfo.objects.filter(username=payload["name"])[0]
-#         dic = {
-#             "data": {"name": user.username, "sex": user.sex},
-#             "new_token": new_token,
-#         }
-#         json_str = json.dumps(dic)
-#
-#         return HttpResponse(json_str)
+class sideBarDetailView(View):
+
+    def get(self, request, username, *args, **kwargs):
+
+        user = UserInfo.objects.filter(username=username)[0]
+        n_commets = Comment.objects.filter(entry__user=user).count()
+        ratings = Entry.objects.filter(user__username=username).aggregate(ratings=Sum("rating"))
+        date_join = user.date_join
+        date_join = date_join.strftime("%Y-%m-%d")
+
+        print("year:", date_join)
+        print(type(ratings))
+        dic = {
+            "username": user.username,
+            "sex": user.sex,
+            "n_comments": n_commets,
+            "year": date_join,
+        }
+        dic.update(ratings)
+        print(dic)
+        json_str = json.dumps(dic)
+
+        return HttpResponse(json_str)
 
 
 class IsVailTokenView(View):

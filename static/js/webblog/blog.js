@@ -144,7 +144,7 @@ function contact(username, action, be_followed){
     }
 
     $.ajax({
-        url: "/" + username + "/" + action + "/" + be_followed +"/",
+        url: "/" + username + "/contact/" + action + "/" + be_followed +"/",
         type: "post",
         dataType: "json",
         headers:{
@@ -189,7 +189,7 @@ function contact(username, action, be_followed){
 $(function () {
     var path = window.location.pathname;
     // console.log(path);
-    var path_names = window.location.pathname.split("/");
+    path_names = window.location.pathname.split("/");
     page_request(page=1, uname=path_names[2]);
     contact(login_user, "is_contacted", path_names[2]);
 
