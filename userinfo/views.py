@@ -15,7 +15,7 @@ from common.views import *
 from userinfo.models import UserInfo, Contact
 
 # token有效时间
-timedelta = datetime.timedelta(seconds=600).total_seconds()
+timedelta = datetime.timedelta(seconds=1000).total_seconds()
 
 # 注册
 class RegisterView(View):
@@ -51,7 +51,7 @@ class RegisterView(View):
             }
 
             # 注册的同时开通博客
-            Blog.objects.create(blog=user, name=user.username + " of blog")
+            Blog.objects.create(user=user, name=user.username + " of blog")
 
             response = JsonResponse(dic)
             return response

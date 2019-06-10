@@ -188,6 +188,8 @@ class ReplyView(View):
 
         return JsonResponse(dic)
 
+
+
     def post(self, request, username, article_id, comment_id, *args, **kwargs):
         reply = "回复测试"
         user = UserInfo.objects.get(username=username)

@@ -102,7 +102,9 @@ alert("script");
                 var testEditormdView, testEditormdView2;
                 
                 $.get("test.md", function(markdown) {
-                    testEditormdView = editormd.markdownToHTML("test-editormd-view", {
+                    console.log(markdown)
+                    
+				    testEditormdView = editormd.markdownToHTML("test-editormd-view", {
                         markdown        : markdown ,//+ "\r\n" + $("#append-test").text(),
                         //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
                         htmlDecode      : "style,script,iframe",  // you can filter tags decode
