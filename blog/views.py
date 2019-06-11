@@ -33,7 +33,7 @@ class IndexView(View):
             response.status_code = 404
             return response
 
-        paginator = Paginator(entry_list, 5)
+        paginator = Paginator(entry_list, 10)
         #　所有页的item的总和
         count = paginator.count
         # 一共有几页
@@ -235,28 +235,4 @@ class TestView(View):
 
         return JsonResponse({"method": "PUT"})
 
-class UserInfoView(View):
-    def get(self, request, username, *args, **kwargs):
-        user_obj = get_object_or_404(UserInfo, username = username)
-        name = user_obj.username
-        sex = user_obj.sex
-        date_join = user_obj.date_join
-        email = user_obj.email
-
-        nums_entries = user_obj.entry_set.all().count()
-        nums_comments = user_obj.entry_set.all().aggregate(Sum("n_comments"))["n_comments__sum"]
-        nums_contacts = user_obj.followers.count()
-
-        dic = {
-            "username": name,
-            "sex": sex,
-            "date_join": date_join,
-            "email": email,
-            "nums_entries": nums_entries,
-            "nums_cometns": nums_comments,
-            "nums_contacts": nums_contacts,
-
-        }
-
-        return JsonResponse(dic)
 

@@ -35,7 +35,8 @@ class Entry(models.Model):
     mod_date = models.DateTimeField(auto_now=True)
     # 评论
     n_comments = models.IntegerField(default=0)
-    # 收    n_pingbacks = models.IntegerField(default=0)
+    # 收藏
+    n_pingbacks = models.IntegerField(default=0)
     # 阅读量
     rating = models.IntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")

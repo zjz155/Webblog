@@ -66,12 +66,10 @@ function page_request(page, uname) {
                 html += '</li>';
 
                 $("#content-list").html(html);
-                $("#username-siderbar").html(" " + uname);
+                // $("#username-siderbar").html(" " + uname);
                 $("#pagination").remove();
 
-
-
-              console.log(textStatus);
+                console.log(textStatus);
           }
       });
 
@@ -181,17 +179,20 @@ function contact(username, action, be_followed){
     });
 
 
-
 }
 
 
 
+// 执行
 $(function () {
     var path = window.location.pathname;
     // console.log(path);
     path_names = window.location.pathname.split("/");
+    // 显示文章列
     page_request(page=1, uname=path_names[2]);
+    //  关注
     contact(login_user, "is_contacted", path_names[2]);
+
 
     $("#contact").click(function () {
         text = $(this).html();
@@ -204,6 +205,10 @@ $(function () {
             contact(userame=login_user, action="cancel", be_followed=path_names[2]);
 
     });
+
+
+
+
 });
 
 console.log("blog - token:" + access_token);

@@ -62,6 +62,12 @@
            $("#btnPost").click(function () {
                username = $("#username").val();
                password = $("#password").val();
+               var re = /^[A-Za-z]\w{3,11}$/i;
+               if (!re.test(username)){
+                    alert("请以字母开头使用字母、数字、下划线组合用户名,4-12位字符");
+                    return
+               }
+
                email = $("#email").val();
                $.ajax({
                    url: "/register/",
@@ -76,6 +82,8 @@
                        alert("用户名重复或密码有误");
                    }
                });
+
+
            });
        });
 

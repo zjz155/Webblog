@@ -1,6 +1,6 @@
 var access_token = window.localStorage.getItem("access_token");
-path = window.location.pathname;
-path_name = path.split("/");
+// path = window.location.pathname;
+// path_name = path.split("/");
 article_id = path_name[4];
 comment_url = "/" +  login_user + "/comment/" +  article_id + "/";
 
@@ -73,11 +73,6 @@ function comment() {
         });
     });
 
-
-    // function reply() {
-    //
-    //
-    // }
 }
 
 // 回复评论
