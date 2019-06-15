@@ -29,12 +29,12 @@ class BlogAdmin(admin.ModelAdmin):
     inlines = (CommentInline,)
 
 class EntryAdmin(admin.ModelAdmin):
-    inlines = (CategoryInline, CommentInline,)
+    inlines = (CommentInline,)
     list_display = ("user", "headline", "abstract", "pub_date", "status")
 
     def get_absolute_url(self):
         pass
 
-
-admin.site.register(Blog, BlogAdmin)
+#
+# admin.site.register(Blog, BlogAdmin)
 admin.site.register(Entry, EntryAdmin)

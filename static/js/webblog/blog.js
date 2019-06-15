@@ -1,10 +1,11 @@
 // var token;
 
 // 请求一(某)页数据 /blog/uname/1
-function page_request(page, uname) {
+function page_request(page, uname, data) {
       $.ajax({
           url: "/blog/" + uname + "/"  + page + "/",
           type: "get",
+          data: data,
           dataType: "json",
           success: function (data, status, XHR) {
                 html = "";

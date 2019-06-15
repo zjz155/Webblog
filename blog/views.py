@@ -21,8 +21,8 @@ class IndexView(View):
 
         # user = UserInfo.objects.get(username=username)
         user = get_object_or_404(UserInfo, username=username)
-
-        entry_list = Entry.objects.filter(user=user).order_by("-pub_date")
+        search_title = request.GET.get("title", "")
+        entry_list = Entry.objects.filter(user=user, headline__icontains=search_title).order_by("-pub_date")
 
         if not entry_list:
             dic = {

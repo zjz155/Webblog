@@ -88,12 +88,24 @@ function is_login(){
             user_info(login_user);
             $("#markdown").click(function() {
             if (access_token)
-                $(window).attr("location", "/compile_blog/");
+                $(window).attr("location", "/compile_blog/" + login_user );
             else
                 alert("请先登录")
             });
         }
 
+
+    });
+
+
+}
+
+function search() {
+    $("#search_btn").click(function () {
+        text = $("#search").val();
+        $("#reset-btn").trigger("click");
+        console.log(text);
+        page_request(page=2, uname=path_names[2],{"title": text});
 
     });
 
@@ -106,4 +118,5 @@ function is_login(){
 
 $(function (){
     is_login();
+    search();
 });
