@@ -3,21 +3,20 @@ import json
 import logging
 
 from django.contrib.auth.hashers import make_password, check_password
+from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from django.utils.decorators import method_decorator
 from django.views import View
 
+from blog.models import Blog, Comment, Entry
 from common.views import *
 from userinfo.models import UserInfo, Contact
 
-# Get an instance of a logger
-# logger = logging.getLogger("django")
-
 # token有效时间
-timedelta = datetime.timedelta(seconds=60*60).total_seconds()
+timedelta = datetime.timedelta(seconds=1000).total_seconds()
 
 # 注册
 class RegisterView(View):
@@ -29,11 +28,11 @@ class RegisterView(View):
         username = request.POST.get("username")
         password = request.POST.get("password")
         print("username:", username, "password:", password)
+
         # 数据校验
         user = UserInfo.objects.filter(username=username)
         if user:
             dic = {
-                "action": "register",
                 "success": False,
                 "message": "用户名已存在",
             }
@@ -43,17 +42,21 @@ class RegisterView(View):
 
         # 数据校验通过，创建用户
         if username and password:
-            UserInfo.objects.create(username=username, password=make_password(password, None, "pbkdf2_sha256"))
+            user = UserInfo.objects.create(username=username, password=make_password(password, None, "pbkdf2_sha256"))
+
+            print("user:", user)
             dic = {
-                "action": "register",
                 "success": True,
                 "message": "注册成功",
             }
+
+            # 注册的同时开通博客
+            Blog.objects.create(user=user, name=user.username + " of blog")
+
             response = JsonResponse(dic)
             return response
 
         dic = {
-            "action": "register",
             "success": False,
             "message": "用户名或密码不能为空",
         }
@@ -67,12 +70,23 @@ class LoginView(View):
         return render(request, "userinfo/login.html",)
 
     def post(self, request, *args, **kwargs):
+
+        dic = {
+            "is_login": False,
+            "username": "anonymous",
+            "access_token": "",
+            "message": "您的输入有误",
+        }
+
         username = request.POST.get("username")
         password = request.POST.get("password")
 
         user = UserInfo.objects.filter(username=username)
         if not user:
-            return HttpResponse("用户名不存在")
+            responese = JsonResponse(dic)
+            responese.status_code = 404
+
+            return responese
 
         password_ = user[0].password
         pwd = check_password(password, password_, None, "pbkdf2_sha256")
@@ -81,49 +95,70 @@ class LoginView(View):
             user[0].save()
             last_login = user[0].last_login.timestamp()
 
-            header_payload = dinfine_header_payload(username, timedelta, last_login)
-            token = create_token(**header_payload)
+            header_payload = dinfine_header_payload(user[0].id,username, timedelta, last_login)
+            access_token = create_access_token(**header_payload)
+            dic.update({"is_login": True, "username": username, "access_token": access_token, "message": "登录成功"})
 
-            dic = {
-                "action": "login",
-                "username": username,
-                "success": True,
-                "token": token,
-                "message": "登录成功",
-            }
-            json_str = json.dumps(dic)
+            responese = JsonResponse(dic)
 
-            return HttpResponse(json_str)
+            return responese
 
-        return HttpResponse("用户名或密码不正确")
+        responese = JsonResponse(dic)
+        responese.status_code = 404
+        return responese
 
 
 class UserInfoView(View):
-    @method_decorator(check_token)
-    def get(self, request, *args, **kwargs):
-        new_token = refresh_token(*args, **kwargs)
-        payload = args[0]
-        user = UserInfo.objects.filter(username=payload["name"])[0]
-        dic = {
-            "data": {"name": user.username, "sex": user.sex},
-            "new_token": new_token,
-        }
-        json_str = json.dumps(dic)
 
-        return HttpResponse(json_str)
+    def get(self, request, username, *args, **kwargs):
+        try:
+            user = UserInfo.objects.get(username=username)
+        except UserInfo.DoesNotExist:
+            dic = {
+                "success": False,
+                "status_code": 404,
+                "messages": "请求有误, 用户不存在",
+            }
+            response = JsonResponse(dic)
+            response.status_code = 404
+            return response
+
+        n_commets = Comment.objects.filter(entry__user=user).count()
+        ratings = Entry.objects.filter(user__username=username).aggregate(ratings=Sum("rating"))
+        date_join = user.date_join
+        date_join = date_join.strftime("%Y-%m-%d")
+
+        print("year:", date_join)
+        print(type(ratings))
+        dic = {
+            "username": htmlencode(user.username),
+            "sex": user.sex,
+            "email": user.email,
+            "n_comments": n_commets,
+            "ratings": ratings,
+            "year": date_join,
+
+        }
+
+        dic.update(ratings)
+        print(dic)
+        response = JsonResponse(dic)
+        print(response)
+        return HttpResponse(response)
 
 
 class IsVailTokenView(View):
-    @method_decorator(check_token)
-    def get(self, request, *args, **kwargs):
-        payload = args[0]
-        print("*args:", *args)
+    @method_decorator(check_access_token)
+    def get(self, request, payload, *args, **kwargs):
+
+        # 自动刷新access_token
+        new_acces_token = refresh_access_token(payload)
+        print("payload:", payload)
         username =payload["name"]
         dic = {
-            "action": "login",
-            "username": username,
-            "success": True,
-            "token": "",
+            "is_login": True,
+            "username": htmlencode(username),
+            "new_access_token": new_acces_token,
             "message": "登录成功",
         }
 
@@ -134,19 +169,62 @@ class IsVailTokenView(View):
 
 # 关注,be_folowed为被关注的人
 class ContactView(View):
-    def post(self, follower, action, be_folowed,  *args, **kwargs):
-        if action == "follow":
-            Contact.objects.update_or_create(user_from=follower, user_to=be_folowed, defaults={"is_active": True})
+    @method_decorator(check_access_token)
+    def post(self, request, playload, username, action, be_followed,  *args, **kwargs):
+        if username == be_followed:
+                dic = {
+                    "success": False,
+                    "display": "关注",
+                    "messages": "you can't contact yourself",
+                }
+                response = JsonResponse(dic)
+                response.status_code = 404
+                return JsonResponse(dic)
+
+        user_from = get_object_or_404(UserInfo, username=username)
+        user_to = get_object_or_404(UserInfo, username=be_followed)
+        contact = Contact.objects.filter(user_from=user_from, user_to=user_to, is_active=True)
+
+        # print(username)
+        if action == "is_contacted":
+            if contact:
+                dic = {
+                    "success": True,
+                    "display": "已关注",
+                    "messages": "have been contacted",
+                }
+                return JsonResponse(dic)
+            else:
+                dic = {
+                    "success": True,
+                    "display": "关注",
+                    "messages": "is not contacted",
+                }
+                return JsonResponse(dic)
+        elif action == "follow":
+            Contact.objects.update_or_create(user_from=user_from, user_to=user_to, defaults={"is_active": True})
             dic = {
                 "success": True,
-                "messages": "contact successfull"
+                "display": "已关注",
+                "messages": "contact successfull",
             }
             return JsonResponse(dic)
-        else:
-            Contact.objects.filter(user_from=follower, user_to=be_folowed).upadte(is_active=False)
+        elif action == "cancel":
+            Contact.objects.filter(user_from=user_from, user_to=user_to).update(is_active=False)
             dic = {
                 "success": True,
-                "messages": "cancel successfull"
+                "display": "关注",
+                "messages": "cancel successfull",
             }
 
             return JsonResponse(dic)
+
+        dic = {
+            "success": False,
+            "display": "关注",
+            "messages": "can't understand you meaning",
+        }
+
+        response = JsonResponse(dic)
+        response.status_code = 404
+        return response
