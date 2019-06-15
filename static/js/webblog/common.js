@@ -1,5 +1,36 @@
 var access_token=window.localStorage.getItem("access_token");
 var login_user = window.localStorage.getItem("username");
+path = window.location.pathname;
+path_name = path.split("/");
+
+console.log("blog_list_path:"+path_name[2]);
+if (!login_user)
+    login_user = "jz_zhou";
+
+function user_info(login_user){
+    $.ajax({
+        url: "/userinfo/" + path_name[2] + "/",
+        type: "get",
+        dataType: "json",
+        success: function (data, textSatust, XHR) {
+            username = data.username;
+            n_comments = data.n_comments;
+            year = data.year;
+            ratings = data.ratings;
+
+           $("#username-siderbar").html(username);
+           $("#n_comments").html(n_comments);
+           $("#join-date").html(year);
+           $("#ratings").html(ratings);
+            console.log("ratings:"+ ratings);
+            console.log("year:"+ year);
+            console.log("n_comments:"+ n_comments);
+
+        }
+
+    });
+
+}
 
 
 function nav_login_btn(){
@@ -22,6 +53,7 @@ function is_login(){
          },
 
          success: function (data, textstatus, XHR) {
+
              new_access_token = data.new_access_token;
              if (new_access_token)
                  window.localStorage.setItem("access_token", new_access_token);
@@ -30,7 +62,7 @@ function is_login(){
                  if (access_token){
                     window.localStorage.clear();
                     nav_login_btn();
-                    // window.location.reload();
+                    window.location.reload();
                 }
                 else
                     $(window).attr("location", "/login/")
@@ -40,7 +72,9 @@ function is_login(){
 
 
              $("#register").html(data.username).click(function () {
-                 $(window).attr("location", "/blog/" + data.username + "/" + "list" + "/")
+                 $(window).attr("location", "/blog/" + data.username + "/" + "list" + "/");
+
+
              });
 
 
@@ -51,9 +85,10 @@ function is_login(){
 
          },
         complete: function (XHR, textStatus) {
+            user_info(login_user);
             $("#markdown").click(function() {
             if (access_token)
-                $(window).attr("location", "/compile_blog/");
+                $(window).attr("location", "/compile_blog/" + login_user );
             else
                 alert("请先登录")
             });
@@ -63,10 +98,25 @@ function is_login(){
     });
 
 
+}
+
+function search() {
+    $("#search_btn").click(function () {
+        text = $("#search").val();
+        $("#reset-btn").trigger("click");
+        console.log(text);
+        page_request(page=2, uname=path_names[2],{"title": text});
+
+    });
+
+
 
 }
 
 
+
+
 $(function (){
     is_login();
+    search();
 });

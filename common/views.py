@@ -157,4 +157,5 @@ def check_access_token(func):
 def htmlencode(strings):
     strings = re.sub(r"<", "&lt;", strings)
     strings = re.sub(r">", "&gt;", strings)
+
     return strings

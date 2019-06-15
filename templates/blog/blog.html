@@ -47,12 +47,14 @@
           <a class="nav-link" href="#" target="_self" id="markdown">Markdown编辑器</a>
         </li>
       </ul>
-      <div class="form-inline mt-2 mt-md-0">
+      <form action="#" class="form-inline mt-2 mt-md-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" id="search">
+          <button type="reset" class="btn btn-primary my-2 my-sm-0 d-none" id="reset-btn"> <span>reset</span></button>
+          <button class="btn btn-danger my-2 my-sm-0"  id="search_btn">搜索</button>&nbsp;&nbsp;
+          <button class="btn btn-primary my-2 my-sm-0"  id="login">登录</button>&nbsp;&nbsp;
+          <button class="btn btn-primary my-2 my-sm-0" id="register">注册</button>
 
-          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0"  id="login">登录</button>&nbsp;&nbsp;
-          <button class="btn btn-outline-success my-2 my-sm-0" id="register">注册</button>
-      </div>
+      </form>
     </div>
   </nav>
 </header>
@@ -67,17 +69,17 @@
         <div class="col-md border p-0" style="margin: 0 7px">
             <div class="card rounded-0">
                 <div class="card-header border-bottom bg-white d-flex justify-content-between align-items-center">
-                    <span><img alt="头像" src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" style="width: 40px;height: 40px"><span id="username-siderbar">  </span></span>
+                    <span><img alt="头像" src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" style="width: 40px;height: 40px"> <span id="username-siderbar">---</span></span>
                     <span class=""><button class="btn  btn-sm btn-outline-danger" id="contact">关注</button></span>
                 </div>
                 <div class="card-body border-bottom d-flex justify-content-between align-items-center" style="margin-bottom: -15px">
-                    <dl><dd>粉丝</dd><dd class="text-center">21</dd></dl>
-                    <dl><dd>喜欢</dd><dd class="text-center">2</dd></dl>
-                    <dl><dd>评论</dd><dd class="text-center">18</dd></dl>
+                    <dl><dd>粉丝</dd><dd class="text-center">---</dd></dl>
+                    <dl><dd>喜欢</dd><dd class="text-center">---</dd></dl>
+                    <dl><dd>评论</dd><dd class="text-center" id="n_comments">---</dd></dl>
                 </div>
                 <div class="card-footer border-bottom bg-white d-flex justify-content-between">
-                    <div><span>年限: </span><span>1</span> </div>
-                     <div><span>访问: </span><span>35</span> </div>
+                    <div><span>时间: </span><span id="join-date">---</span> </div>
+                     <div><span>访问: </span><span id="ratings">---</span> </div>
 
                 </div>
             </div>

@@ -10,6 +10,8 @@ urlpatterns = [
 urlpatterns += [
     re_path(r"article/details/(?P<article_id>\d+)/$", DetialEntryView.as_view(), name="post-detail"),
     re_path(r"article/details/(?P<article_id>\d+)/data/$", ReadBlogEntry.as_view()),
-    re_path(r"(?P<action>\w+)/(?P<be_followed>\w+(-*)\w+)", ContactView.as_view()),
+    # 关注
+    re_path(r"contact/(?P<action>\w+)/(?P<be_followed>\w+(-*)\w+)/$", ContactView.as_view()),
+
 
 ]

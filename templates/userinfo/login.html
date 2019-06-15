@@ -52,7 +52,29 @@
             $("#btnPost").click(function(){
                 username = $("#username").val();
                 password = $("#password").val();
+                $.ajax({
+                    url: "/login/",
+                    type: "post",
+                    dataType: "json",
+                    data: {"username": username, "password": password },
+                    success: function (data, textStatus, XHR) {
+                        access_token = window.localStorage.getItem("access_token");
+                        if (access_token)
+                            window.localStorage.clear();
+
+                        window.localStorage.setItem("access_token", data.access_token);
+                        window.localStorage.setItem("username", data.username);
+                        $(location).attr("href", "/blog/jz_zhou/list/")
+
+                    },
+
+                    error: function (XHR, textStatus, errorThrown) {
+                        alert("您的输入有误, 请重试...")
+
+                    }
+                });
                 $.post("/login/", {"username": username, "password": password }, function(data,status){
+                    console.log(status);
                     access_token = window.localStorage.getItem("access_token");
 
                     if (access_token)

@@ -1,10 +1,11 @@
 // var token;
 
 // 请求一(某)页数据 /blog/uname/1
-function page_request(page, uname) {
+function page_request(page, uname, data) {
       $.ajax({
           url: "/blog/" + uname + "/"  + page + "/",
           type: "get",
+          data: data,
           dataType: "json",
           success: function (data, status, XHR) {
                 html = "";
@@ -66,12 +67,10 @@ function page_request(page, uname) {
                 html += '</li>';
 
                 $("#content-list").html(html);
-                $("#username-siderbar").html(" " + uname);
+                // $("#username-siderbar").html(" " + uname);
                 $("#pagination").remove();
 
-
-
-              console.log(textStatus);
+                console.log(textStatus);
           }
       });
 
@@ -144,7 +143,7 @@ function contact(username, action, be_followed){
     }
 
     $.ajax({
-        url: "/" + username + "/" + action + "/" + be_followed +"/",
+        url: "/" + username + "/contact/" + action + "/" + be_followed +"/",
         type: "post",
         dataType: "json",
         headers:{
@@ -181,17 +180,20 @@ function contact(username, action, be_followed){
     });
 
 
-
 }
 
 
 
+// 执行
 $(function () {
     var path = window.location.pathname;
     // console.log(path);
-    var path_names = window.location.pathname.split("/");
+    path_names = window.location.pathname.split("/");
+    // 显示文章列
     page_request(page=1, uname=path_names[2]);
+    //  关注
     contact(login_user, "is_contacted", path_names[2]);
+
 
     $("#contact").click(function () {
         text = $(this).html();
@@ -204,6 +206,10 @@ $(function () {
             contact(userame=login_user, action="cancel", be_followed=path_names[2]);
 
     });
+
+
+
+
 });
 
 console.log("blog - token:" + access_token);

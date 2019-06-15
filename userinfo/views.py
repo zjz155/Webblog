@@ -3,6 +3,7 @@ import json
 import logging
 
 from django.contrib.auth.hashers import make_password, check_password
+from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -10,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
 
-from blog.models import Blog
+from blog.models import Blog, Comment, Entry
 from common.views import *
 from userinfo.models import UserInfo, Contact
 
@@ -27,11 +28,11 @@ class RegisterView(View):
         username = request.POST.get("username")
         password = request.POST.get("password")
         print("username:", username, "password:", password)
+
         # 数据校验
         user = UserInfo.objects.filter(username=username)
         if user:
             dic = {
-                "action": "register",
                 "success": False,
                 "message": "用户名已存在",
             }
@@ -45,7 +46,6 @@ class RegisterView(View):
 
             print("user:", user)
             dic = {
-                "action": "register",
                 "success": True,
                 "message": "注册成功",
             }
@@ -57,7 +57,6 @@ class RegisterView(View):
             return response
 
         dic = {
-            "action": "register",
             "success": False,
             "message": "用户名或密码不能为空",
         }
@@ -109,18 +108,43 @@ class LoginView(View):
         return responese
 
 
-# class UserInfoView(View):
-#     @method_decorator(check_access_token)
-#     def get(self, request, payload, *args, **kwargs):
-#         new_token = refresh_access_token(*args, **kwargs)
-#         user = UserInfo.objects.filter(username=payload["name"])[0]
-#         dic = {
-#             "data": {"name": user.username, "sex": user.sex},
-#             "new_token": new_token,
-#         }
-#         json_str = json.dumps(dic)
-#
-#         return HttpResponse(json_str)
+class UserInfoView(View):
+
+    def get(self, request, username, *args, **kwargs):
+        try:
+            user = UserInfo.objects.get(username=username)
+        except UserInfo.DoesNotExist:
+            dic = {
+                "success": False,
+                "status_code": 404,
+                "messages": "请求有误, 用户不存在",
+            }
+            response = JsonResponse(dic)
+            response.status_code = 404
+            return response
+
+        n_commets = Comment.objects.filter(entry__user=user).count()
+        ratings = Entry.objects.filter(user__username=username).aggregate(ratings=Sum("rating"))
+        date_join = user.date_join
+        date_join = date_join.strftime("%Y-%m-%d")
+
+        print("year:", date_join)
+        print(type(ratings))
+        dic = {
+            "username": htmlencode(user.username),
+            "sex": user.sex,
+            "email": user.email,
+            "n_comments": n_commets,
+            "ratings": ratings,
+            "year": date_join,
+
+        }
+
+        dic.update(ratings)
+        print(dic)
+        response = JsonResponse(dic)
+        print(response)
+        return HttpResponse(response)
 
 
 class IsVailTokenView(View):
@@ -133,7 +157,7 @@ class IsVailTokenView(View):
         username =payload["name"]
         dic = {
             "is_login": True,
-            "username": username,
+            "username": htmlencode(username),
             "new_access_token": new_acces_token,
             "message": "登录成功",
         }

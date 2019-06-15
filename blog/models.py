@@ -33,9 +33,11 @@ class Entry(models.Model):
     body_text = models.TextField()
     pub_date = models.DateTimeField(auto_now_add=True)
     mod_date = models.DateTimeField(auto_now=True)
-
+    # 评论
     n_comments = models.IntegerField(default=0)
+    # 收藏
     n_pingbacks = models.IntegerField(default=0)
+    # 阅读量
     rating = models.IntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
 
@@ -94,12 +96,12 @@ class Reply(models.Model):
 
 class Tag(models.Model):
     tag = models.CharField(max_length=30)
-    entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
+    entry = models.ManyToManyField(Entry, blank=True)
     created = models.DateField(auto_now_add=True)
 
 class Category(models.Model):
     category = models.CharField(max_length=30)
-    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, null=True, blank=True)
+    entry = models.ManyToManyField(Entry, blank=True)
 
     class Meta:
         verbose_name = "类别"

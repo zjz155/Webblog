@@ -27,7 +27,17 @@
             <input type="text" class="form-control"  name="headline" id="headline" placeholder="请输入文章标题" style="width: 65%;display:inline" >
             <input type="button" class="btn" id="reported" value="发表文章"/>
             <input type="button" class="btn" id="saving" value="存为草稿" />
-            <img src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" alt="Cinque Terre" width="35px" height="35px"/>
+            <span class="dropdown ml-2">
+                <span class="dropdown-toggle" data-toggle="dropdown">
+                   <img src="https://static.runoob.com/images/mix/cinqueterre.jpg" class="rounded-circle" alt="Cinque Terre" width="35px" height="35px"/>
+                </span>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="/blog/jz_zhou/list/" id="header">首页</a>
+                  <a class="dropdown-item" href="#" id="my_blog">我的博客</a>
+                  <a class="dropdown-item disabled" href="#" id="person_center" >个人中心</a>
+                </div>
+            </span>
+
         </div>
         <div id="editormd">
             <textarea name="content" id="content" style="display: none">
@@ -75,7 +85,7 @@
              headline = $("#headline").val();
              console.log(headline);
              $.ajax({
-                 url: "/compile_blog/",
+                 url: "/compile_blog/" + login_user + "/",
                  type: "post",
                  data: {"headline": headline, "content": content},
                  datatype: "json",
@@ -94,6 +104,9 @@
         });
         */
     });
+
+    my_blog_url = "/" + "blog" + "/" + login_user + "/" + "list" + "/";
+    $("#my_blog").attr("href", my_blog_url);
 
 </script>
 
