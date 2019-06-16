@@ -3,7 +3,7 @@
 // 请求一(某)页数据 /blog/uname/1
 function page_request(page, uname, data) {
       $.ajax({
-          url: "/blog/" + uname + "/"  + page + "/",
+          url: "/blog/" + uname + "/article/"  + page + "/",
           type: "get",
           data: data,
           dataType: "json",
@@ -14,6 +14,8 @@ function page_request(page, uname, data) {
                     headline = data.entries[i].headline;
                     abstract = data.entries[i].abstract;
                     pub_date = data.entries[i].pub_date;
+                    comments = data.entries[i].comments;
+                    ratings = data.entries[i].ratings;
                     blog = data.entries[i].blog;
                     link = data.entries[i].link;
                     page_number = data.page_number;
@@ -32,10 +34,12 @@ function page_request(page, uname, data) {
                     html += '</a>';
                     html += '</div>';
                     html += '<div>';
+                    html += '<small>'
                     html += '<span>' + username + '<span> | ';
                     html += '<span>' + pub_date + '</span> ｜';
-                    html += '<span>阅读 0</span> |';
-                    html += '<span>评论 0</span>';
+                    html += '<span>阅读 ' + ratings + '</span> |';
+                    html += '<span>评论 ' + comments + '</span>';
+                    html += '</small>'
                     html += '</div>';
                     html += '</li>';
 
@@ -44,8 +48,20 @@ function page_request(page, uname, data) {
                 $("#content-list").html(html);
                 $("#username-siderbar").html(" " + uname);
 
+
+                html = "";
+                for(i=0; i<data.categories.length; i++){
+                    html +="<div>";
+                    html +="<a href=" + data.categories[i].href + ">";
+                    html += data.categories[i].category;
+                    html +="</a>";
+                    html +="</div>";
+                }
+
+                $("#sider-bar-category").html(html);
+
                 // 生成分页
-                paginator(uname, 3, page, has_previous, has_next)
+                paginator(uname, 3, page, has_previous, has_next);
 
           },
 
@@ -143,7 +159,7 @@ function contact(username, action, be_followed){
     }
 
     $.ajax({
-        url: "/" + username + "/contact/" + action + "/" + be_followed +"/",
+        url: "/blog/" + username + "/contact/" + action + "/" + be_followed +"/",
         type: "post",
         dataType: "json",
         headers:{
@@ -182,6 +198,22 @@ function contact(username, action, be_followed){
 
 }
 
+function get_filter_condition(){
+    var filter_params, params = {}
+
+    filter_params = decodeURI(window.location.href).split("?")[1]
+    if(!filter_params)
+        return
+    filter_params = filter_params.replace(/(=|&)/g, " ")
+    filter_params = filter_params.split(" ")
+
+    for(i=0; i<filter_params.length; i +=2){
+        params[filter_params[i]] = filter_params[i+1]
+
+    }
+    return params
+
+}
 
 
 // 执行
@@ -189,8 +221,10 @@ $(function () {
     var path = window.location.pathname;
     // console.log(path);
     path_names = window.location.pathname.split("/");
+    data = get_filter_condition()
+
     // 显示文章列
-    page_request(page=1, uname=path_names[2]);
+    page_request(page=1, uname=path_names[2], data);
     //  关注
     contact(login_user, "is_contacted", path_names[2]);
 

@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Sum, F
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 
@@ -15,26 +16,36 @@ from userinfo.models import UserInfo
 
 # 首页,展示所有文章,按间降序
 class IndexView(View):
-    def get(self, request, username="jz_zhou", data= "list", *args, **kwargs):
+    def get(self, request, username="jz_zhou", data="list", *args, **kwargs):
         if data == "list":
             return render(request, "blog/blog.html")
 
         # user = UserInfo.objects.get(username=username)
         user = get_object_or_404(UserInfo, username=username)
         search_title = request.GET.get("title", "")
-        entry_list = Entry.objects.filter(user=user, headline__icontains=search_title).order_by("-pub_date")
+        category = request.GET.get("category", "")
+        print(category)
+        if category:
+            category = get_object_or_404(Category, category=category)
+            entry_list = Entry.objects.filter(user=user, category=category).order_by("-pub_date")
+        elif search_title:
+            entry_list = Entry.objects.filter(user=user, headline__icontains=search_title).order_by("-pub_date")
+
+        else:
+            entry_list = Entry.objects.filter(user=user).order_by("-pub_date")
+
+        categories = Category.objects.filter(entry__user=user)
 
         if not entry_list:
             dic = {
                 "message": "not found entries",
-
             }
             response = JsonResponse(dic)
             response.status_code = 404
             return response
 
         paginator = Paginator(entry_list, 10)
-        #　所有页的item的总和
+        # 所有页的item的总和
         count = paginator.count
         # 一共有几页
         num_pages = paginator.num_pages
@@ -48,10 +59,14 @@ class IndexView(View):
         page_number= entries_page.number
         entries_object_list = entries_page.object_list
 
-        print("blog:", UserInfo.objects.get(username = "jz_zhou").blog.name)
+        print("blog:", UserInfo.objects.get(username="jz_zhou").blog.name)
 
-        entries = [{"headline": obj.headline, "abstract": obj.abstract, "pub_date": obj.pub_date.strftime("%Y-%m-%d %H:%M:%S"),
-                    "user": UserInfo.objects.get(username = obj.user.username).blog.name, "link": obj.get_absolute_url()} for obj in entries_object_list]
+        entries = [{"headline": obj.headline, "abstract": obj.abstract,
+                    "pub_date": obj.pub_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    "user": UserInfo.objects.get(username=obj.user.username).blog.name,
+                    "ratings": obj.rating,
+                    "comments": obj.n_comments,
+                    "link": obj.get_absolute_url()} for obj in entries_object_list]
 
         dic = {
             "has_next": has_next,
@@ -60,7 +75,12 @@ class IndexView(View):
             "page_number": page_number,
             "count": count,
 
-            "entries": entries
+            "entries": entries,
+            "categories": [{"category": obj.category,
+                            "rel": reverse("entry-list", args=[username, data]),
+                            "href": reverse("entry-list", args=[username, "list"]) + "?category=" + obj.category,
+                            }
+                           for obj in categories],
 
         }
         json_str = json.dumps(dic)

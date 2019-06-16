@@ -20,6 +20,18 @@ class Blog(models.Model):
         verbose_name_plural = verbose_name
 
 
+class Category(models.Model):
+    create_date = models.DateTimeField(auto_now_add=True)
+    category = models.CharField(max_length=30, default="other")
+
+    class Meta:
+        verbose_name = "类别"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.category
+
+
 class Entry(models.Model):
     STATUS_CHOICES = (
         ("draft", "Draft"),
@@ -42,6 +54,7 @@ class Entry(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
 
     blog = models.ManyToManyField(Blog, through="Comment", through_fields=("entry", "blog"))
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1, blank=True)
 
     def __str__(self):
         return self.headline
@@ -99,16 +112,7 @@ class Tag(models.Model):
     entry = models.ManyToManyField(Entry, blank=True)
     created = models.DateField(auto_now_add=True)
 
-class Category(models.Model):
-    category = models.CharField(max_length=30)
-    entry = models.ManyToManyField(Entry, blank=True)
 
-    class Meta:
-        verbose_name = "类别"
-        verbose_name_plural = verbose_name
-
-    def __str__(self):
-        return self.category
 
 
 

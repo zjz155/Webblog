@@ -2,6 +2,7 @@ var access_token=window.localStorage.getItem("access_token");
 var login_user = window.localStorage.getItem("username");
 path = window.location.pathname;
 path_name = path.split("/");
+console.log("common.js--path_name:"+path_name)
 
 console.log("blog_list_path:"+path_name[2]);
 if (!login_user)
@@ -43,6 +44,7 @@ function nav_login_btn(){
     });
 }
 
+
 function is_login(){
     $.ajax({
          url: "/is_login/",
@@ -58,24 +60,20 @@ function is_login(){
              if (new_access_token)
                  window.localStorage.setItem("access_token", new_access_token);
 
+
              $("#login").html("退出").click(function () {
                  if (access_token){
                     window.localStorage.clear();
                     nav_login_btn();
-                    window.location.reload();
                 }
-                else
-                    $(window).attr("location", "/login/")
+//                else
+//                    $(window).attr("location", "/login/")
 
 
              });
 
-
-             $("#register").html(data.username).click(function () {
-                 $(window).attr("location", "/blog/" + data.username + "/" + "list" + "/");
-
-
-             });
+            var url = "/blog/" + data.username + "/article/" + "list" + "/"
+            $("#register").html(data.username).attr("href", url)
 
 
          },

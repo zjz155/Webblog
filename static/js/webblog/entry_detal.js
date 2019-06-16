@@ -1,12 +1,14 @@
 var access_token = window.localStorage.getItem("access_token");
 // path = window.location.pathname;
 // path_name = path.split("/");
-article_id = path_name[4];
+article_id = path_name[5];
 comment_url = "/" +  login_user + "/comment/" +  article_id + "/";
+console.log("comment_url:" + comment_url)
 
 // 显示markdown
 $(function() {
     url = window.location.pathname;
+    console.log(url);
     var testEditormdView, testEditormdView2;
     $.get(url + "data/", function(markdown) {
         console.log(markdown);
@@ -47,26 +49,39 @@ $(function() {
 // 发表评论
 function comment() {
     $("#comment-btn").click(function () {
+        console.log("提交："+comment_url)
+        content = $("#comment-form").serialize();
+        if(!access_token)
+            content = "";
+
 
         $.ajax({
             url: comment_url,
             type: "post",
             dataType: "json",
+            data: content,
             headers: {
-                "Authorization": "Bearer" + " " + window.localStorage.getItem("access_token")
+                "Authorization": "Bearer" + " " + access_token
             },
-            data: $("#comment-form").serialize(),
+
 
             success: function (data, textStatus, XHR) {
-               // $("input[type=reset]").trigger("click");
+                $("input[type=reset]").trigger("click");
                comment_list(article_id, 1);
-                alert("评论成功！")
+               alert("评论成功！")
 
             },
 
+
             error: function (XHR, textStatus, errorThrown) {
-                alert("发布失败, 请重试");
-                nav_login_btn();
+                console.log(XHR)
+                window.localStorage.clear();
+//                $(window).attr("location",  "/login/")
+
+
+            },
+            complete: function(XHR, textStatus){
+                console.log("textStatus:"+textStatus);
 
             }
 
@@ -198,7 +213,7 @@ function comment_list(article_id, page) {
         },
         complete: function (XHR, textStatus) {
 
-            $("a").on("click", function(){
+            $("a", "span#comment_list").on("click", function(){
                 cls = $(this).attr("class");
                 text = $(this).html();
 
