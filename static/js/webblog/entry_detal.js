@@ -3,7 +3,7 @@ var access_token = window.localStorage.getItem("access_token");
 // path_name = path.split("/");
 article_id = path_name[5];
 comment_url = "/" +  login_user + "/comment/" +  article_id + "/";
-console.log("comment_url:" + comment_url)
+console.log("comment_url:" + comment_url);
 
 // 显示markdown
 $(function() {
@@ -49,7 +49,7 @@ $(function() {
 // 发表评论
 function comment() {
     $("#comment-btn").click(function () {
-        console.log("提交："+comment_url)
+        console.log("提交："+comment_url);
         content = $("#comment-form").serialize();
         if(!access_token)
             content = "";
@@ -74,9 +74,8 @@ function comment() {
 
 
             error: function (XHR, textStatus, errorThrown) {
-                console.log(XHR)
                 window.localStorage.clear();
-//                $(window).attr("location",  "/login/")
+
 
 
             },
@@ -213,7 +212,7 @@ function comment_list(article_id, page) {
         },
         complete: function (XHR, textStatus) {
 
-            $("a", "span#comment_list").on("click", function(){
+            $("a").on("click", function(){
                 cls = $(this).attr("class");
                 text = $(this).html();
 

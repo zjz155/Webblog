@@ -35,6 +35,6 @@ class EntryAdmin(admin.ModelAdmin):
     def get_absolute_url(self):
         pass
 
-#
-# admin.site.register(Blog, BlogAdmin)
+
+admin.site.register(Blog, BlogAdmin)
 admin.site.register(Entry, EntryAdmin)

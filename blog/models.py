@@ -50,7 +50,7 @@ class Entry(models.Model):
     # 收藏
     n_pingbacks = models.IntegerField(default=0)
     # 阅读量
-    rating = models.IntegerField(default=0)
+    pv = models.IntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
 
     blog = models.ManyToManyField(Blog, through="Comment", through_fields=("entry", "blog"))

@@ -17,13 +17,13 @@ function user_info(login_user){
             username = data.username;
             n_comments = data.n_comments;
             year = data.year;
-            ratings = data.ratings;
+            pv = data.pv;
 
            $("#username-siderbar").html(username);
            $("#n_comments").html(n_comments);
            $("#join-date").html(year);
-           $("#ratings").html(ratings);
-            console.log("ratings:"+ ratings);
+           $("#pv").html(pv);
+            console.log("pv:"+ pv);
             console.log("year:"+ year);
             console.log("n_comments:"+ n_comments);
 
@@ -35,13 +35,10 @@ function user_info(login_user){
 
 
 function nav_login_btn(){
-    $("#login").html("登录").click(function () {
-        $(window).attr("location", "/login/")
-    });
+    $("#login").html("登录").attr("href", "/login/");
 
-    $("#register").html("注册").click(function () {
-         $(window).attr("location", "/register/")
-    });
+
+    $("#register").html("注册").attr("href", "/register/")
 }
 
 
@@ -61,25 +58,27 @@ function is_login(){
                  window.localStorage.setItem("access_token", new_access_token);
 
 
-             $("#login").html("退出").click(function () {
-                 if (access_token){
-                    window.localStorage.clear();
-                    nav_login_btn();
-                }
-//                else
-//                    $(window).attr("location", "/login/")
+             $("#login").html("退出").attr("href", "#").click(function () {
+                window.localStorage.clear();
+                $(this).html("登录");
+                $("#register").html("注册");
+                window.location.reload();
+
+
 
 
              });
 
-            var url = "/blog/" + data.username + "/article/" + "list" + "/"
-            $("#register").html(data.username).attr("href", url)
+
+
+            var url = "/blog/" + data.username + "/article/" + "list" + "/";
+            $("#register").html(data.username).attr("href", url);
 
 
          },
          error: function (XHR, textStatus, errorThrown) {
-              window.localStorage.clear();
-              nav_login_btn();
+            window.localStorage.clear();
+            nav_login_btn();
 
          },
         complete: function (XHR, textStatus) {

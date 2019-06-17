@@ -15,7 +15,7 @@ function page_request(page, uname, data) {
                     abstract = data.entries[i].abstract;
                     pub_date = data.entries[i].pub_date;
                     comments = data.entries[i].comments;
-                    ratings = data.entries[i].ratings;
+                    pv = data.entries[i].pv;
                     blog = data.entries[i].blog;
                     link = data.entries[i].link;
                     page_number = data.page_number;
@@ -34,12 +34,12 @@ function page_request(page, uname, data) {
                     html += '</a>';
                     html += '</div>';
                     html += '<div>';
-                    html += '<small>'
+                    html += '<small>';
                     html += '<span>' + username + '<span> | ';
                     html += '<span>' + pub_date + '</span> ｜';
-                    html += '<span>阅读 ' + ratings + '</span> |';
+                    html += '<span>阅读 ' + pv + '</span> |';
                     html += '<span>评论 ' + comments + '</span>';
-                    html += '</small>'
+                    html += '</small>';
                     html += '</div>';
                     html += '</li>';
 
@@ -199,13 +199,13 @@ function contact(username, action, be_followed){
 }
 
 function get_filter_condition(){
-    var filter_params, params = {}
+    var filter_params, params = {};
 
-    filter_params = decodeURI(window.location.href).split("?")[1]
+    filter_params = decodeURI(window.location.href).split("?")[1];
     if(!filter_params)
-        return
-    filter_params = filter_params.replace(/(=|&)/g, " ")
-    filter_params = filter_params.split(" ")
+        return;
+    filter_params = filter_params.replace(/(=|&)/g, " ");
+    filter_params = filter_params.split(" ");
 
     for(i=0; i<filter_params.length; i +=2){
         params[filter_params[i]] = filter_params[i+1]
@@ -221,7 +221,7 @@ $(function () {
     var path = window.location.pathname;
     // console.log(path);
     path_names = window.location.pathname.split("/");
-    data = get_filter_condition()
+    data = get_filter_condition();
 
     // 显示文章列
     page_request(page=1, uname=path_names[2], data);

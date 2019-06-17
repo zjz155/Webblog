@@ -37,15 +37,16 @@ urlpatterns += [
     path("register/", RegisterView.as_view()),
     path("grant_blog/", GrantBlogView.as_view()),
 
+    re_path("compile_blog/(?P<username>\w+(-*)\w+)/$", CompileBlogEntry.as_view()),
+    re_path("userinfo/(?P<username>\w+(-*)\w+)/$", UserInfoView.as_view()),
+
     re_path(r'^test/(?P<username>\w+)/$', TestView.as_view()),
 
-    re_path(r"(?P<username>\w+(_*)\w+)/comment/(?P<article_id>\w+)/$", CommentView.as_view()),
+    re_path(r"(?P<username>\w+(-*)\w+)/comment/(?P<article_id>\w+)/$", CommentView.as_view()),
     re_path(r"comment/list/(?P<article_id>\w+)/(?P<page>\w+)/$", CommentView.as_view()),
     re_path(r"reply_list/(?P<comment_id>\w+)/(?P<page>\w+)/$", ReplyView.as_view()),
     re_path(r"reply/(?P<username>\w+(-*)\w+)/reply/(?P<comment_id>\w+)/$", ReplyView.as_view()),
 
-    re_path("compile_blog/(?P<username>\w+(-*)\w+)/$", CompileBlogEntry.as_view()),
-    re_path("userinfo/(?P<username>\w+(-*)\w+)/$", UserInfoView.as_view()),
 
 
 ]

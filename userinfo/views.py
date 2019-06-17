@@ -124,23 +124,31 @@ class UserInfoView(View):
             return response
 
         n_commets = Comment.objects.filter(entry__user=user).count()
-        ratings = Entry.objects.filter(user__username=username).aggregate(ratings=Sum("rating"))
+        entries_user = Entry.objects.filter(user__username=username)
+        pv = entries_user.aggregate(Sum("pv"))
+        num_entries = entries_user.count()
         date_join = user.date_join
         date_join = date_join.strftime("%Y-%m-%d")
 
         print("year:", date_join)
-        print(type(ratings))
+        print(type(pv))
         dic = {
             "username": htmlencode(user.username),
             "sex": user.sex,
-            "email": user.email,
-            "n_comments": n_commets,
-            "ratings": ratings,
             "year": date_join,
+            "email": user.email,
+            "blog_info":[{
+                "n_comments": n_commets,
+                "pv": pv["pv__sum"],
+                "num_entries": num_entries,
+            }],
+            "n_comments": n_commets,
+            "pv": pv["pv__sum"],
+            "nums_entry": num_entries,
 
         }
 
-        dic.update(ratings)
+        dic.update(pv)
         print(dic)
         response = JsonResponse(dic)
         print(response)

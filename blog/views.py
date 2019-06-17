@@ -3,7 +3,7 @@ import json
 
 from django.core.cache import caches
 from django.core.paginator import Paginator
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -34,8 +34,8 @@ class IndexView(View):
         else:
             entry_list = Entry.objects.filter(user=user).order_by("-pub_date")
 
-        categories = Category.objects.filter(entry__user=user)
-
+        categories = Category.objects.filter(entry__user=user).values("category").annotate(Count("category"))
+        print("categories:", categories)
         if not entry_list:
             dic = {
                 "message": "not found entries",
@@ -44,7 +44,7 @@ class IndexView(View):
             response.status_code = 404
             return response
 
-        paginator = Paginator(entry_list, 10)
+        paginator = Paginator(entry_list, 2)
         # 所有页的item的总和
         count = paginator.count
         # 一共有几页
@@ -64,7 +64,7 @@ class IndexView(View):
         entries = [{"headline": obj.headline, "abstract": obj.abstract,
                     "pub_date": obj.pub_date.strftime("%Y-%m-%d %H:%M:%S"),
                     "user": UserInfo.objects.get(username=obj.user.username).blog.name,
-                    "ratings": obj.rating,
+                    "pv": obj.pv,
                     "comments": obj.n_comments,
                     "link": obj.get_absolute_url()} for obj in entries_object_list]
 
@@ -76,11 +76,12 @@ class IndexView(View):
             "count": count,
 
             "entries": entries,
-            "categories": [{"category": obj.category,
+            "categories": [{"category": d["category"],
+                            "category__count": d["category__count"],
                             "rel": reverse("entry-list", args=[username, data]),
-                            "href": reverse("entry-list", args=[username, "list"]) + "?category=" + obj.category,
+                            "href": reverse("entry-list", args=[username, "list"]) + "?category=" + d["category"],
                             }
-                           for obj in categories],
+                           for d in categories],
 
         }
         json_str = json.dumps(dic)
@@ -88,6 +89,40 @@ class IndexView(View):
         response = HttpResponse(json_str)
 
         return response
+
+class BlogInfo(View):
+    def get(self, request, username, *args, **kwargs):
+        user = get_object_or_404(UserInfo, username=username)
+
+        n_commets = Comment.objects.filter(entry__user=user).count()
+        entries = Entry.objects.filter(user__username=username)
+        pv = entries.aggregate(Sum("pv"))
+        hots = entries.order_by("-pv")[:5]
+
+        entries = [{"headline": obj.headline, "abstract": obj.abstract,
+                    "pub_date": obj.pub_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    "user": UserInfo.objects.get(username=obj.user.username).blog.name,
+                    "pv": obj.pv,
+                    "comments": obj.n_comments,
+                    "link": obj.get_absolute_url()} for obj in hots]
+
+        categories = Category.objects.filter(entry__user=user).values("category").annotate(Count("category"))
+
+        dic = {
+            "username": user.username,
+            "blogname": user.blog.name,
+            "n_comments": n_commets,
+            "pv": pv["pv__sum"],
+            "categories": [{"category": d["category"],
+                            "n_categories": d["category__count"],
+                            "rel": reverse("entry-list", args=[username, "list"]),
+                            "href": reverse("entry-list", args=[username, "list"]) + "?category=" + d["category"],
+                            }
+                           for d in categories],
+            "entry_hots": entries
+        }
+        response = JsonResponse(dic)
+        return  response
 
 # 开通博客功能
 class GrantBlogView(View):
@@ -113,6 +148,7 @@ class CompileBlogEntry(View):
     def post(self, request, payload, *args, **kwargs):
         headline = request.POST["headline"]
         content = request.POST["content"]
+        print("payload:",payload)
         Entry.objects.update_or_create(user_id=payload["id"], headline=headline,  defaults={"body_text":content})
         print(headline)
         print(content)
@@ -129,7 +165,7 @@ class ReadBlogEntry(View):
     def get(self, request, username, article_id, *args, **kwargs):
         entry_user = get_object_or_404(UserInfo, username=username)
         entry_query = Entry.objects.filter(id=article_id)
-        entry_query.update(rating=F("rating") + 1)
+        entry_query.update(pv=F("pv") + 1)
         headline = entry_query[0].headline
         content = entry_query[0].body_text
 
@@ -234,7 +270,7 @@ class ReplyView(View):
 
 class HotEntryView(View):
     def get(self, request, num, *args, **kwargs):
-        hot_entry = Entry.objects.all().order_by("-rating")[num]
+        hot_entry = Entry.objects.all().order_by("-pv")[num]
 
         dic = {
             "num": len(hot_entry),
