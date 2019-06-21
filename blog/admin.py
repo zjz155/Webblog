@@ -8,6 +8,7 @@ admin.site.register(Comment)
 admin.site.register(Category)
 admin.site.register(Reply)
 admin.site.register(Test_Entry)
+# admin.site.register(Enshrine)
 
 # @admin.register(Entry)
 # class EntryAdmin(admin.ModelAdmin):

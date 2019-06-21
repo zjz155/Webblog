@@ -219,6 +219,7 @@ function comment_list(article_id, page) {
                 if (text === "回复"){
 
                     console.log("cls:" + cls);
+                     $(this).html("收起")
                 }
                 else if (text === "查看回复"){
 
@@ -231,6 +232,13 @@ function comment_list(article_id, page) {
                  $("#comment" + cls).on("hidden.bs.collapse", function () {
                       $("#com" + cls).html("查看回复");
                  });
+
+                $("#reply" + cls).on("hidden.bs.collapse", function () {
+                      $("#rep" + cls).html("回复");
+                 });
+
+
+
 
 
 

@@ -2,36 +2,37 @@ var access_token=window.localStorage.getItem("access_token");
 var login_user = window.localStorage.getItem("username");
 path = window.location.pathname;
 path_name = path.split("/");
-console.log("common.js--path_name:"+path_name)
+name_visited = path_name[2];
+console.log("common.js--path_name:" + path_name);
 
-console.log("blog_list_path:"+path_name[2]);
+console.log("blog_list_path:" + name_visited);
 if (!login_user)
     login_user = "jz_zhou";
 
-function user_info(login_user){
-    $.ajax({
-        url: "/userinfo/" + path_name[2] + "/",
-        type: "get",
-        dataType: "json",
-        success: function (data, textSatust, XHR) {
-            username = data.username;
-            n_comments = data.n_comments;
-            year = data.year;
-            pv = data.pv;
-
-           $("#username-siderbar").html(username);
-           $("#n_comments").html(n_comments);
-           $("#join-date").html(year);
-           $("#pv").html(pv);
-            console.log("pv:"+ pv);
-            console.log("year:"+ year);
-            console.log("n_comments:"+ n_comments);
-
-        }
-
-    });
-
-}
+// function user_info(login_user){
+//     $.ajax({
+//         url: "/userinfo/" + name_visited,
+//         type: "get",
+//         dataType: "json",
+//         success: function (data, textSatust, XHR) {
+//             username = data.username;
+//             n_comments = data.n_comments;
+//             year = data.year;
+//             pv = data.pv;
+//
+//            $("#username-siderbar").html(username);
+//            $("#n_comments").html(n_comments);
+//            $("#join-date").html(year);
+//            $("#pv").html(pv);
+//             console.log("pv:"+ pv);
+//             console.log("year:"+ year);
+//             console.log("n_comments:"+ n_comments);
+//
+//         }
+//
+//     });
+//
+// }
 
 
 function nav_login_btn(){
@@ -82,7 +83,6 @@ function is_login(){
 
          },
         complete: function (XHR, textStatus) {
-            user_info(login_user);
             $("#markdown").click(function() {
             if (access_token)
                 $(window).attr("location", "/compile_blog/" + login_user );
@@ -102,7 +102,7 @@ function search() {
         text = $("#search").val();
         $("#reset-btn").trigger("click");
         console.log(text);
-        page_request(page=2, uname=path_names[2],{"title": text});
+        page_request(page=1, uname=name_visited,{"title": text});
 
     });
 

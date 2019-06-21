@@ -10,6 +10,10 @@ class Blog(models.Model):
     # 个性答名
     tagline = models.TextField(null=True)
 
+    url_enshrine = models.URLField(default="", null=True, blank=True)
+    headline_enshrine = models.TextField(default="", null=True, blank=True)
+    n_enshrines = models.PositiveIntegerField(default=0)
+
     user = models.OneToOneField(UserInfo, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
@@ -86,6 +90,7 @@ class Comment(models.Model):
 
     def __str__(self):
       return "{} : {} 评论了 {}".format("comment_id:" + str(self.id),self.blog, self.entry)
+
 
 class Reply(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)

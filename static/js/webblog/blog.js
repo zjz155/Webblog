@@ -1,11 +1,11 @@
 // var token;
 
-// 请求一(某)页数据 /blog/uname/1
-function page_request(page, uname, data) {
+// 请求一(某)页文章列表数据 /blog/uname/1
+function page_request(page, uname, FILER) {
       $.ajax({
-          url: "/blog/" + uname + "/article/"  + page + "/",
+          url: "/blog/" + uname + "/article/"  + page,
           type: "get",
-          data: data,
+          data: FILER,
           dataType: "json",
           success: function (data, status, XHR) {
                 html = "";
@@ -38,7 +38,8 @@ function page_request(page, uname, data) {
                     html += '<span>' + username + '<span> | ';
                     html += '<span>' + pub_date + '</span> ｜';
                     html += '<span>阅读 ' + pv + '</span> |';
-                    html += '<span>评论 ' + comments + '</span>';
+                    html += '<span>评论 ' + comments + '</span> |';
+                    html += '<span>喜欢 ' + 1 + '</span>';
                     html += '</small>';
                     html += '</div>';
                     html += '</li>';
@@ -48,20 +49,8 @@ function page_request(page, uname, data) {
                 $("#content-list").html(html);
                 $("#username-siderbar").html(" " + uname);
 
-
-                html = "";
-                for(i=0; i<data.categories.length; i++){
-                    html +="<div>";
-                    html +="<a href=" + data.categories[i].href + ">";
-                    html += data.categories[i].category;
-                    html +="</a>";
-                    html +="</div>";
-                }
-
-                $("#sider-bar-category").html(html);
-
                 // 生成分页
-                paginator(uname, 3, page, has_previous, has_next);
+                paginator(uname, 3, page, has_previous, has_next, FILER);
 
           },
 
@@ -93,9 +82,56 @@ function page_request(page, uname, data) {
 
 }
 
+function get_siderbar(uname){
+                url = "/blog/" + uname + "/blog/info/";
+                $.ajax({
+                    url: url,
+                    type: "get",
+                    dataType: "json",
+                    success: function(data, textStatus, XHR) {
+                        username = data.username;
+                        n_contacts = data.n_contacts;
+                        n_comments = data.n_comments;
+                        year = data.year;
+                        pv = data.pv;
+
+                        $("#username-siderbar").html(username);
+                        $("#n_comments").html(n_comments);
+                        $("#join-date").html(year);
+                        $("#pv").html(pv);
+                        $("#n_contacts").html(n_contacts);
+                        console.log("pv:"+ pv);
+                        console.log("year:"+ year);
+                        console.log("n_comments:"+ n_comments);
+
+                        html = "";
+                        for(i=0; i<data.categories.length; i++){
+                            category = data.categories[i].category;
+                            html +="<div>";
+                            html +="<a href='#'>";
+                            html += category;
+                            html +="</a>";
+                            html +="</div>";
+
+                        }
+
+                        $("#sider-bar-category").html(html);
+                        $("a", "div#sider-bar-category").on("click", function () {
+                             data = {"category": $(this).html()};
+                             console.log(data);
+                             // 显示文章列
+                            page_request(page=1, uname=name_visited, data);
+
+                         });
+                    }
+
+                });
+
+}
+
 
 // 实现翻页
-function paginator(uname, num, page, has_previous, has_next){
+function paginator(uname, num, page, has_previous, has_next, FILER){
      if(num_pages > num)
         i = num;
      else
@@ -135,15 +171,15 @@ function paginator(uname, num, page, has_previous, has_next){
             case "up":
                 n = $('.active > a', "ul#pagination").html();
                 console.log("n:" + n);
-                page_request((parseInt(n) - 1), uname);
+                page_request((parseInt(n) - 1), uname, FILER);
                 break;
 
             case "down":
                 n = $('.active > a', "ul#pagination").html();
-                page_request((parseInt(n) + 1), uname);
+                page_request((parseInt(n) + 1), uname, FILER);
                 break;
             default:
-                 page_request($(this).html(), uname);
+                 page_request($(this).html(), uname, FILER);
 
         }
 
@@ -198,46 +234,32 @@ function contact(username, action, be_followed){
 
 }
 
-function get_filter_condition(){
-    var filter_params, params = {};
-
-    filter_params = decodeURI(window.location.href).split("?")[1];
-    if(!filter_params)
-        return;
-    filter_params = filter_params.replace(/(=|&)/g, " ");
-    filter_params = filter_params.split(" ");
-
-    for(i=0; i<filter_params.length; i +=2){
-        params[filter_params[i]] = filter_params[i+1]
-
-    }
-    return params
-
-}
-
 
 // 执行
 $(function () {
     var path = window.location.pathname;
     // console.log(path);
-    path_names = window.location.pathname.split("/");
-    data = get_filter_condition();
-
+    // path_names = window.location.pathname.split("/");
+    var data;
     // 显示文章列
-    page_request(page=1, uname=path_names[2], data);
+    page_request(page=1, uname=name_visited, data);
+
+    get_siderbar(name_visited);
     //  关注
-    contact(login_user, "is_contacted", path_names[2]);
+    contact(login_user, "is_contacted", name_visited);
 
 
     $("#contact").click(function () {
         text = $(this).html();
         if (text === "关注") {
             // var path_names = window.location.pathname.split("/");
-            contact(userame=login_user, action="follow", be_followed=path_names[2]);
+            contact(userame=login_user, action="follow", be_followed=name_visited);
             // $("#contact").html("已关注")
         }
         else if (text === "取消关注")
-            contact(userame=login_user, action="cancel", be_followed=path_names[2]);
+            contact(userame=login_user, action="cancel", be_followed=name_visited);
+
+        get_siderbar(name_visited);
 
     });
 

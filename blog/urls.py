@@ -8,7 +8,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path("blog/info/", BlogInfo.as_view()),
+    re_path("blog/info/$", BlogInfo.as_view()),
     re_path(r"article/(?P<data>\w+)/$", IndexView.as_view(), name="entry-list"),
     #
     re_path(r"article/details/(?P<article_id>\d+)/$", DetialEntryView.as_view(), name="post-detail"),

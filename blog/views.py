@@ -12,7 +12,8 @@ from django.views import View
 
 from blog.models import *
 from common.views import check_access_token, htmlencode
-from userinfo.models import UserInfo
+from userinfo.models import UserInfo, Contact
+
 
 # 首页,展示所有文章,按间降序
 class IndexView(View):
@@ -44,7 +45,7 @@ class IndexView(View):
             response.status_code = 404
             return response
 
-        paginator = Paginator(entry_list, 2)
+        paginator = Paginator(entry_list, 1)
         # 所有页的item的总和
         count = paginator.count
         # 一共有几页
@@ -79,7 +80,7 @@ class IndexView(View):
             "categories": [{"category": d["category"],
                             "category__count": d["category__count"],
                             "rel": reverse("entry-list", args=[username, data]),
-                            "href": reverse("entry-list", args=[username, "list"]) + "?category=" + d["category"],
+                            "href": reverse("entry-list", args=[username, data]) + "?category=" + d["category"],
                             }
                            for d in categories],
 
@@ -93,6 +94,8 @@ class IndexView(View):
 class BlogInfo(View):
     def get(self, request, username, *args, **kwargs):
         user = get_object_or_404(UserInfo, username=username)
+        date_join = user.date_join
+        date_join = date_join.strftime("%Y-%m-%d")
 
         n_commets = Comment.objects.filter(entry__user=user).count()
         entries = Entry.objects.filter(user__username=username)
@@ -107,16 +110,21 @@ class BlogInfo(View):
                     "link": obj.get_absolute_url()} for obj in hots]
 
         categories = Category.objects.filter(entry__user=user).values("category").annotate(Count("category"))
+        print("the contacts", Contact.objects.all())
+        n_contacts = Contact.objects.filter(user_to=user, is_active=True).count()
+        print("n_contacts:", n_contacts)
 
         dic = {
             "username": user.username,
             "blogname": user.blog.name,
             "n_comments": n_commets,
+            "n_contacts": n_contacts,
+            "year": date_join,
             "pv": pv["pv__sum"],
             "categories": [{"category": d["category"],
                             "n_categories": d["category__count"],
                             "rel": reverse("entry-list", args=[username, "list"]),
-                            "href": reverse("entry-list", args=[username, "list"]) + "?category=" + d["category"],
+                            "href": reverse("entry-list", args=[username, 1]) + "?category=" + d["category"],
                             }
                            for d in categories],
             "entry_hots": entries
@@ -266,6 +274,12 @@ class ReplyView(View):
         }
 
         return JsonResponse(dic)
+
+
+class EnshrineView(View):
+    def post(self, request, article_id, *args, **kwargs):
+        pass
+
 
 
 class HotEntryView(View):
